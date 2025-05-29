@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BiblioCafè - Admin Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
 </head>
+
 <body>
     <div id="notification" class="notification"></div>
 
@@ -46,15 +50,18 @@
 
                 <main class="main-content">
                     <div id="productTable"></div>
-                    
-                    <div id="menuManagementPanel" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
+
+                    <div id="menuManagementPanel" class="hidden"
+                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
                         <!-- This will be populated dynamically by JavaScript -->
                     </div>
 
-                    <div id="qrCodePanel" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
+                    <div id="qrCodePanel" class="hidden"
+                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
                         <h3 style="margin-bottom: 2rem; color: var(--primary-color);">QR Code Menu</h3>
                         <div style="margin-bottom: 2rem;">
-                            <p style="color: var(--text-color); margin-bottom: 1rem;">Scansiona questo QR Code per accedere al menu digitale:</p>
+                            <p style="color: var(--text-color); margin-bottom: 1rem;">Scansiona questo QR Code per
+                                accedere al menu digitale:</p>
                             <div id="qrCodeContainer" style="display: flex; justify-content: center; margin: 2rem 0;">
                                 <!-- QR Code will be generated here -->
                             </div>
@@ -62,12 +69,32 @@
                                 <strong>URL:</strong> <span id="menuUrl"></span>
                             </p>
                         </div>
-<div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-    <button onclick="printQRCode()" class="btn btn-primary">🖨️ Stampa QR Code</button>
-    <button onclick="hideQRCodePanel()" class="btn btn-danger">⬅️ Indietro</button>
-</div>
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <button onclick="printQRCode()" class="btn btn-primary">🖨️ Stampa QR Code</button>
+                            <button onclick="hideQRCodePanel()" class="btn btn-danger">⬅️ Indietro</button>
+                        </div>
                     </div>
-                    
+
+                    <div id="categoryManagementPanel" class="hidden"
+                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
+                        <h3 style="margin-bottom: 2rem; color: var(--primary-color);">Gestione Categorie</h3>
+                        <div
+                            style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; margin: 0 auto;">
+                            <button onclick="showAddCategoryForm()" class="btn btn-primary" style="width: 100%;">
+                                ➕ Aggiungi Categoria
+                            </button>
+                            <button onclick="showEditCategoryForm()" class="btn btn-primary" style="width: 100%;">
+                                ✏️ Modifica Categoria
+                            </button>
+                            <button onclick="showDeleteCategoryForm()" class="btn btn-primary" style="width: 100%;">
+                                🗑️ Elimina Categoria
+                            </button>
+                            <button onclick="hideCategoryManagementPanel()" class="btn btn-danger" style="width: 100%;">
+                                ⬅️ Indietro
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="productForm" class="hidden">
                         <h3 style="margin-bottom: 1.5rem;">Aggiungi/Modifica Prodotto</h3>
                         <form onsubmit="handleProductSubmit(event)">
@@ -90,7 +117,42 @@
                             </div>
                             <div style="display: flex; gap: 1rem;">
                                 <button type="submit" class="btn btn-primary">Salva</button>
-                                <button type="button" onclick="hideProductForm()" class="btn btn-danger">Annulla</button>
+                                <button type="button" onclick="hideProductForm()"
+                                    class="btn btn-danger">Annulla</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="categoryForm" class="hidden">
+                        <h3 id="categoryFormTitle" style="margin-bottom: 1.5rem;">Gestione Categoria</h3>
+                        <form onsubmit="handleCategorySubmit(event)">
+                            <input type="hidden" id="categoryFormMode">
+                            <input type="hidden" id="originalCategoryId">
+
+                            <div class="form-group" id="categorySelectGroup" style="display: none;">
+                                <label for="categoryToEdit">Seleziona Categoria</label>
+                                <select id="categoryToEdit" class="form-control"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryId">ID Categoria</label>
+                                <input type="text" id="categoryId" class="form-control" required pattern="[a-z0-9-]+"
+                                    title="Solo lettere minuscole, numeri e trattini">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryName">Nome Categoria</label>
+                                <input type="text" id="categoryName" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryEmoji">Emoji</label>
+                                <input type="text" id="categoryEmoji" class="form-control" maxlength="2" required>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="submit" id="categorySubmitBtn" class="btn btn-primary">Salva</button>
+                                <button type="button" onclick="hideCategoryForm()"
+                                    class="btn btn-danger">Annulla</button>
                             </div>
                         </form>
                     </div>
@@ -105,108 +167,108 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 
     <script>
-// ==========================================
-// DATABASE MANAGER E CREDENZIALI
-// ==========================================
+        // ==========================================
+        // DATABASE MANAGER E CREDENZIALI
+        // ==========================================
 
-// Credenziali admin
-const ADMIN_CREDENTIALS = {
-    username: 'caffetteria',
-    password: 'menu2024'
-};
+        // Credenziali admin
+        const ADMIN_CREDENTIALS = {
+            username: 'caffetteria',
+            password: 'menu2024'
+        };
 
-// Variabili globali
-let currentCategories = [];
-let currentProducts = [];
-let currentCategoryFilter = null;
-let qrCodeInstance = null;
+        // Variabili globali
+        let currentCategories = [];
+        let currentProducts = [];
+        let currentCategoryFilter = null;
+        let qrCodeInstance = null;
 
-// ==========================================
-// FUNZIONI UTILITARIE
-// ==========================================
+        // ==========================================
+        // FUNZIONI UTILITARIE
+        // ==========================================
 
-function showNotification(message, duration = 3000) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.style.display = 'block';
-    setTimeout(() => {
-        notification.style.display = 'none';
-    }, duration);
-}
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, duration);
+        }
 
-function getCategoryData(categoryId) {
-    return currentCategories.find(c => c.id === categoryId);
-}
+        function getCategoryData(categoryId) {
+            return currentCategories.find(c => c.id === categoryId);
+        }
 
-// ==========================================
-// GESTIONE LOGIN/LOGOUT
-// ==========================================
+        // ==========================================
+        // GESTIONE LOGIN/LOGOUT
+        // ==========================================
 
-function handleLogin(event) {
-    event.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        showNotification('Login effettuato con successo');
-        
-        // Inizializza l'interfaccia admin
-        initializeAdminPanel();
-    } else {
-        showNotification('Credenziali non valide');
-    }
-}
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                showNotification('Login effettuato con successo');
 
-function handleLogout() {
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('adminPanel').classList.add('hidden');
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    showNotification('Logout effettuato con successo');
-}
+                // Inizializza l'interfaccia admin
+                initializeAdminPanel();
+            } else {
+                showNotification('Credenziali non valide');
+            }
+        }
 
-// ==========================================
-// INIZIALIZZAZIONE ADMIN PANEL
-// ==========================================
+        function handleLogout() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            showNotification('Logout effettuato con successo');
+        }
 
-async function initializeAdminPanel() {
-    try {
-        // Inizializza il database
-        await menuDB.init();
-        await menuDB.seedDatabase();
-        
-        // Carica dati dal database
-        await loadDataFromDatabase();
-        
-        // Popola l'interfaccia
-        loadCategories();
-        loadProducts();
-        
-        console.log('Admin panel inizializzato con successo');
-        console.log(`Categorie: ${currentCategories.length}, Prodotti: ${currentProducts.length}`);
-        
-    } catch (error) {
-        console.error('Errore inizializzazione admin panel:', error);
-        showNotification('Errore nel caricamento dei dati dal database');
-    }
-}
+        // ==========================================
+        // INIZIALIZZAZIONE ADMIN PANEL
+        // ==========================================
 
-async function loadDataFromDatabase() {
-    try {
-        currentCategories = await menuDB.getAllCategories();
-        currentProducts = await menuDB.getAllProducts();
-    } catch (error) {
-        console.error('Errore nel caricamento dati:', error);
-        throw error;
-    }
-}
+        async function initializeAdminPanel() {
+            try {
+                // Inizializza il database
+                await menuDB.init();
+                await menuDB.seedDatabase();
 
-function loadCategories() {
-    // Popola la sidebar delle categorie (desktop)
-    const categoryList = document.getElementById('categoryList');
-    categoryList.innerHTML = currentCategories.map(category => `
+                // Carica dati dal database
+                await loadDataFromDatabase();
+
+                // Popola l'interfaccia
+                loadCategories();
+                loadProducts();
+
+                console.log('Admin panel inizializzato con successo');
+                console.log(`Categorie: ${currentCategories.length}, Prodotti: ${currentProducts.length}`);
+
+            } catch (error) {
+                console.error('Errore inizializzazione admin panel:', error);
+                showNotification('Errore nel caricamento dei dati dal database');
+            }
+        }
+
+        async function loadDataFromDatabase() {
+            try {
+                currentCategories = await menuDB.getAllCategories();
+                currentProducts = await menuDB.getAllProducts();
+            } catch (error) {
+                console.error('Errore nel caricamento dati:', error);
+                throw error;
+            }
+        }
+
+        function loadCategories() {
+            // Popola la sidebar delle categorie (desktop)
+            const categoryList = document.getElementById('categoryList');
+            categoryList.innerHTML = currentCategories.map(category => `
         <button 
             onclick="filterProducts('${category.id}')" 
             class="btn btn-primary" 
@@ -227,6 +289,12 @@ function loadCategories() {
             ➕ Aggiungi Prodotto
         </button>
         <button 
+            onclick="showCategoryManagementPanel()" 
+            class="btn btn-primary" 
+            style="width: 100%; margin-bottom: 0.5rem;">
+            📂 Gestisci Categorie
+        </button>
+        <button 
             onclick="showQRCodePanel()" 
             class="btn btn-primary" 
             style="width: 100%; margin-bottom: 0.5rem;">
@@ -234,9 +302,8 @@ function loadCategories() {
         </button>
     `;
 
-    // Popola la barra categorie mobile
-    const categoryListMobile = document.getElementById('categoryListMobile');
-    categoryListMobile.innerHTML = currentCategories.map(category => `
+            // STESSO CAMBIAMENTO per categoryListMobile:
+            categoryListMobile.innerHTML = currentCategories.map(category => `
         <button 
             onclick="filterProducts('${category.id}')" 
             class="nav-button">
@@ -254,44 +321,49 @@ function loadCategories() {
             ➕ Aggiungi
         </button>
         <button 
+            onclick="showCategoryManagementPanel()" 
+            class="nav-button">
+            📂 Categorie
+        </button>
+        <button 
             onclick="showQRCodePanel()" 
             class="nav-button">
             📱 QR Code
         </button>
     `;
 
-    // Popola il select delle categorie nel form
-    const categorySelect = document.getElementById('category');
-    categorySelect.innerHTML = currentCategories.map(category => `
+            // Popola il select delle categorie nel form
+            const categorySelect = document.getElementById('category');
+            categorySelect.innerHTML = currentCategories.map(category => `
         <option value="${category.id}">${category.emoji} ${category.name}</option>
     `).join('');
-}
+        }
 
-// ==========================================
-// GESTIONE PRODOTTI
-// ==========================================
+        // ==========================================
+        // GESTIONE PRODOTTI
+        // ==========================================
 
-function loadProducts(categoryFilter = null) {
-    currentCategoryFilter = categoryFilter;
-    
-    let filteredProducts = categoryFilter 
-        ? currentProducts.filter(p => p.category === categoryFilter)
-        : currentProducts;
+        function loadProducts(categoryFilter = null) {
+            currentCategoryFilter = categoryFilter;
 
-    const productTable = document.getElementById('productTable');
-    
-    if (filteredProducts.length === 0) {
-        productTable.innerHTML = `
+            let filteredProducts = categoryFilter
+                ? currentProducts.filter(p => p.category === categoryFilter)
+                : currentProducts;
+
+            const productTable = document.getElementById('productTable');
+
+            if (filteredProducts.length === 0) {
+                productTable.innerHTML = `
             <div style="text-align: center; padding: 2rem; color: #666;">
                 <h3>Nessun prodotto trovato</h3>
                 <p>Non ci sono prodotti ${categoryFilter ? 'in questa categoria' : 'nel database'}</p>
                 <button onclick="showAddProductForm()" class="btn btn-primary">Aggiungi Prodotto</button>
             </div>
         `;
-        return;
-    }
+                return;
+            }
 
-    productTable.innerHTML = `
+            productTable.innerHTML = `
         <div class="products-grid">
             ${filteredProducts.map(product => {
                 const categoryData = getCategoryData(product.category);
@@ -316,103 +388,105 @@ function loadProducts(categoryFilter = null) {
             }).join('')}
         </div>
     `;
-}
+        }
 
-function filterProducts(category) {
-    loadProducts(category);
-}
+        function filterProducts(category) {
+            loadProducts(category);
+        }
 
-function showAllProducts() {
-    loadProducts();
-}
+        function showAllProducts() {
+            loadProducts();
+        }
 
-async function editProduct(id) {
-    try {
-        const product = await menuDB.getProduct(id);
-        if (product) {
+        async function editProduct(id) {
+            try {
+                const product = await menuDB.getProduct(id);
+                if (product) {
+                    hideAllPanels();
+                    document.getElementById('productForm').classList.remove('hidden');
+
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('category').value = product.category;
+                    document.getElementById('name').value = product.name;
+                    document.getElementById('description').value = product.description;
+                    document.getElementById('price').value = product.price;
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento prodotto:', error);
+                showNotification('Errore nel caricamento del prodotto');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
+                try {
+                    await menuDB.deleteProduct(id);
+                    await loadDataFromDatabase(); // Ricarica i dati
+                    loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
+                    showNotification('Prodotto eliminato con successo');
+                } catch (error) {
+                    console.error('Errore eliminazione prodotto:', error);
+                    showNotification('Errore nell\'eliminazione del prodotto');
+                }
+            }
+        }
+
+        // ==========================================
+        // GESTIONE PANNELLI
+        // ==========================================
+
+        function hideAllPanels() {
+            document.getElementById('productTable').classList.add('hidden');
+            document.getElementById('menuManagementPanel').classList.add('hidden');
+            document.getElementById('qrCodePanel').classList.add('hidden');
+            document.getElementById('categoryManagementPanel').classList.add('hidden'); // NUOVO
+            document.getElementById('productForm').classList.add('hidden');
+            document.getElementById('categoryForm').classList.add('hidden'); // NUOVO
+        }
+
+        function showProductTable() {
             hideAllPanels();
-            document.getElementById('productForm').classList.remove('hidden');
-            
-            document.getElementById('productId').value = product.id;
-            document.getElementById('category').value = product.category;
-            document.getElementById('name').value = product.name;
-            document.getElementById('description').value = product.description;
-            document.getElementById('price').value = product.price;
+            document.getElementById('productTable').classList.remove('hidden');
         }
-    } catch (error) {
-        console.error('Errore nel caricamento prodotto:', error);
-        showNotification('Errore nel caricamento del prodotto');
-    }
-}
 
-async function deleteProduct(id) {
-    if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
-        try {
-            await menuDB.deleteProduct(id);
-            await loadDataFromDatabase(); // Ricarica i dati
-            loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
-            showNotification('Prodotto eliminato con successo');
-        } catch (error) {
-            console.error('Errore eliminazione prodotto:', error);
-            showNotification('Errore nell\'eliminazione del prodotto');
+        // ==========================================
+        // GESTIONE QR CODE
+        // ==========================================
+
+        function showQRCodePanel() {
+            hideAllPanels();
+            document.getElementById('qrCodePanel').classList.remove('hidden');
+            generateQRCode();
         }
-    }
-}
 
-// ==========================================
-// GESTIONE PANNELLI
-// ==========================================
+        function hideQRCodePanel() {
+            hideAllPanels();
+            document.getElementById('productTable').classList.remove('hidden');
+        }
 
-function hideAllPanels() {
-    document.getElementById('productTable').classList.add('hidden');
-    document.getElementById('menuManagementPanel').classList.add('hidden');
-    document.getElementById('qrCodePanel').classList.add('hidden');
-    document.getElementById('productForm').classList.add('hidden');
-}
+        async function generateQRCode() {
+            try {
+                // Mostra un messaggio personalizzato invece dell'URL completo
+                document.getElementById('menuUrl').textContent = 'Menu Digitale BiblioCafè';
 
-function showProductTable() {
-    hideAllPanels();
-    document.getElementById('productTable').classList.remove('hidden');
-}
+                // Pulisce il container del QR code
+                const qrContainer = document.getElementById('qrCodeContainer');
+                qrContainer.innerHTML = '';
 
-// ==========================================
-// GESTIONE QR CODE
-// ==========================================
+                // Crea un elemento immagine invece di generare il QR code
+                const img = document.createElement('img');
+                img.src = './img/QRMenu.png'; // Percorso relativo all'immagine
+                img.alt = 'QR Code Menu BiblioCafè';
+                img.style.width = '300px';
+                img.style.height = '300px';
+                img.style.border = '2px solid var(--primary-color)';
+                img.style.borderRadius = '12px';
+                img.style.boxShadow = '0 4px 12px var(--shadow)';
 
-function showQRCodePanel() {
-    hideAllPanels();
-    document.getElementById('qrCodePanel').classList.remove('hidden');
-    generateQRCode();
-}
-
-function hideQRCodePanel() {
-    hideAllPanels();
-    document.getElementById('productTable').classList.remove('hidden');
-}
-
-async function generateQRCode() {
-    try {
-        // Mostra un messaggio personalizzato invece dell'URL completo
-        document.getElementById('menuUrl').textContent = 'Menu Digitale BiblioCafè';
-        
-        // Pulisce il container del QR code
-        const qrContainer = document.getElementById('qrCodeContainer');
-        qrContainer.innerHTML = '';
-        
-        // Crea un elemento immagine invece di generare il QR code
-        const img = document.createElement('img');
-        img.src = './img/QRMenu.png'; // Percorso relativo all'immagine
-        img.alt = 'QR Code Menu BiblioCafè';
-        img.style.width = '300px';
-        img.style.height = '300px';
-        img.style.border = '2px solid var(--primary-color)';
-        img.style.borderRadius = '12px';
-        img.style.boxShadow = '0 4px 12px var(--shadow)';
-        
-        // Gestisci eventuali errori di caricamento dell'immagine
-        img.onerror = function() {
-            console.error('Errore nel caricamento dell\'immagine QR Code');
-            qrContainer.innerHTML = `
+                // Gestisci eventuali errori di caricamento dell'immagine
+                img.onerror = function () {
+                    console.error('Errore nel caricamento dell\'immagine QR Code');
+                    qrContainer.innerHTML = `
                 <div style="
                     width: 300px; 
                     height: 300px; 
@@ -432,83 +506,83 @@ async function generateQRCode() {
                     </div>
                 </div>
             `;
-            showNotification('Immagine QR Code non trovata');
-        };
-        
-        img.onload = function() {
-            console.log('QR Code caricato con successo');
-        };
-        
-        qrContainer.appendChild(img);
-        
-        // Salva il riferimento per le funzioni di download e stampa
-        qrCodeInstance = img;
-        
-    } catch (error) {
-        console.error('Errore nel caricamento del QR Code:', error);
-        showNotification('Errore nel caricamento del QR Code');
-    }
-}
+                    showNotification('Immagine QR Code non trovata');
+                };
 
-function downloadQRCode() {
-    if (!qrCodeInstance) {
-        showNotification('QR Code non disponibile per il download');
-        return;
-    }
-    
-    try {
-        // Se è un'immagine, usa il percorso diretto
-        if (qrCodeInstance.tagName === 'IMG') {
-            const link = document.createElement('a');
-            link.download = 'bibliocafe-menu-qr.png';
-            link.href = qrCodeInstance.src;
-            link.click();
-            
-            showNotification('QR Code scaricato con successo');
-        } 
-        // Se è un canvas (per compatibilità con codice precedente)
-        else if (qrCodeInstance.tagName === 'CANVAS') {
-            const link = document.createElement('a');
-            link.download = 'bibliocafe-menu-qr.png';
-            link.href = qrCodeInstance.toDataURL('image/png');
-            link.click();
-            
-            showNotification('QR Code scaricato con successo');
-        }
-        else {
-            showNotification('Formato QR Code non supportato per il download');
-        }
-        
-    } catch (error) {
-        console.error('Errore nel download del QR Code:', error);
-        showNotification('Errore nel download del QR Code');
-    }
-}
+                img.onload = function () {
+                    console.log('QR Code caricato con successo');
+                };
 
-function printQRCode() {
-    if (!qrCodeInstance) {
-        showNotification('QR Code non disponibile per la stampa');
-        return;
-    }
-    
-    try {
-        // Usa un messaggio personalizzato invece dell'URL del file system
-        const menuUrl = 'Menu Digitale BiblioCafè';
-        
-        // Ottieni l'URL dell'immagine per la stampa
-        let imageUrl;
-        if (qrCodeInstance.tagName === 'IMG') {
-            imageUrl = qrCodeInstance.src;
-        } else if (qrCodeInstance.tagName === 'CANVAS') {
-            imageUrl = qrCodeInstance.toDataURL('image/png');
-        } else {
-            showNotification('Formato QR Code non supportato per la stampa');
-            return;
+                qrContainer.appendChild(img);
+
+                // Salva il riferimento per le funzioni di download e stampa
+                qrCodeInstance = img;
+
+            } catch (error) {
+                console.error('Errore nel caricamento del QR Code:', error);
+                showNotification('Errore nel caricamento del QR Code');
+            }
         }
-        
-        // Crea una finestra per la stampa
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
+
+        function downloadQRCode() {
+            if (!qrCodeInstance) {
+                showNotification('QR Code non disponibile per il download');
+                return;
+            }
+
+            try {
+                // Se è un'immagine, usa il percorso diretto
+                if (qrCodeInstance.tagName === 'IMG') {
+                    const link = document.createElement('a');
+                    link.download = 'bibliocafe-menu-qr.png';
+                    link.href = qrCodeInstance.src;
+                    link.click();
+
+                    showNotification('QR Code scaricato con successo');
+                }
+                // Se è un canvas (per compatibilità con codice precedente)
+                else if (qrCodeInstance.tagName === 'CANVAS') {
+                    const link = document.createElement('a');
+                    link.download = 'bibliocafe-menu-qr.png';
+                    link.href = qrCodeInstance.toDataURL('image/png');
+                    link.click();
+
+                    showNotification('QR Code scaricato con successo');
+                }
+                else {
+                    showNotification('Formato QR Code non supportato per il download');
+                }
+
+            } catch (error) {
+                console.error('Errore nel download del QR Code:', error);
+                showNotification('Errore nel download del QR Code');
+            }
+        }
+
+        function printQRCode() {
+            if (!qrCodeInstance) {
+                showNotification('QR Code non disponibile per la stampa');
+                return;
+            }
+
+            try {
+                // Usa un messaggio personalizzato invece dell'URL del file system
+                const menuUrl = 'Menu Digitale BiblioCafè';
+
+                // Ottieni l'URL dell'immagine per la stampa
+                let imageUrl;
+                if (qrCodeInstance.tagName === 'IMG') {
+                    imageUrl = qrCodeInstance.src;
+                } else if (qrCodeInstance.tagName === 'CANVAS') {
+                    imageUrl = qrCodeInstance.toDataURL('image/png');
+                } else {
+                    showNotification('Formato QR Code non supportato per la stampa');
+                    return;
+                }
+
+                // Crea una finestra per la stampa
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
             <!DOCTYPE html>
             <html>
             <head>
@@ -568,33 +642,33 @@ function printQRCode() {
             </body>
             </html>
         `);
-        
-        printWindow.document.close();
-        
-        // Stampa dopo che l'immagine è caricata
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 500);
-        
-        showNotification('QR Code inviato alla stampante');
-        
-    } catch (error) {
-        console.error('Errore nella stampa del QR Code:', error);
-        showNotification('Errore nella stampa del QR Code');
-    }
-}
 
-// ==========================================
-// GESTIONE FORM PRODOTTI
-// ==========================================
+                printWindow.document.close();
 
-function showMenuManagementPanel() {
-    hideAllPanels();
-    const menuManagementPanel = document.getElementById('menuManagementPanel');
-    menuManagementPanel.classList.remove('hidden');
-    
-    menuManagementPanel.innerHTML = `
+                // Stampa dopo che l'immagine è caricata
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+
+                showNotification('QR Code inviato alla stampante');
+
+            } catch (error) {
+                console.error('Errore nella stampa del QR Code:', error);
+                showNotification('Errore nella stampa del QR Code');
+            }
+        }
+
+        // ==========================================
+        // GESTIONE FORM PRODOTTI
+        // ==========================================
+
+        function showMenuManagementPanel() {
+            hideAllPanels();
+            const menuManagementPanel = document.getElementById('menuManagementPanel');
+            menuManagementPanel.classList.remove('hidden');
+
+            menuManagementPanel.innerHTML = `
         <div class="menu-management-options" style="display: flex; flex-direction: column; gap: 1rem;">
             <h3 style="margin-bottom: 1rem;">Gestione Menu</h3>
             <button onclick="showAddProductForm()" class="btn btn-primary" style="width: 100%;">
@@ -611,114 +685,324 @@ function showMenuManagementPanel() {
             </button>
         </div>
     `;
-}
-
-function cancelMenuManagement() {
-    showProductTable();
-}
-
-function showAddProductForm() {
-    hideAllPanels();
-    document.getElementById('productForm').classList.remove('hidden');
-    
-    // Reset form
-    document.getElementById('productId').value = '';
-    document.getElementById('category').value = currentCategories.length > 0 ? currentCategories[0].id : '';
-    document.getElementById('name').value = '';
-    document.getElementById('description').value = '';
-    document.getElementById('price').value = '';
-}
-
-function hideProductForm() {
-    hideAllPanels();
-    document.getElementById('productTable').classList.remove('hidden');
-}
-
-async function handleProductSubmit(event) {
-    event.preventDefault();
-    
-    try {
-        const productId = document.getElementById('productId').value;
-        const newProduct = {
-            id: productId ? parseInt(productId) : await menuDB.getNextProductId(),
-            category: document.getElementById('category').value,
-            name: document.getElementById('name').value,
-            description: document.getElementById('description').value,
-            price: parseFloat(document.getElementById('price').value)
-        };
-
-        await menuDB.addProduct(newProduct); // addProduct funziona sia per inserimento che aggiornamento
-        await loadDataFromDatabase(); // Ricarica i dati
-        
-        hideProductForm();
-        loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
-        
-        if (productId) {
-            showNotification('Prodotto modificato con successo');
-        } else {
-            showNotification('Prodotto aggiunto con successo');
         }
-        
-    } catch (error) {
-        console.error('Errore salvataggio prodotto:', error);
-        showNotification('Errore nel salvataggio del prodotto');
-    }
-}
 
-// ==========================================
-// FUNZIONI UTILITÀ AGGIUNTIVE
-// ==========================================
-
-function exportMenuData() {
-    try {
-        const menuData = {
-            categories: currentCategories,
-            products: currentProducts,
-            exportDate: new Date().toISOString()
-        };
-        
-        const dataStr = JSON.stringify(menuData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `bibliocafe-menu-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        showNotification('Menu esportato con successo');
-    } catch (error) {
-        console.error('Errore esportazione:', error);
-        showNotification('Errore nell\'esportazione del menu');
-    }
-}
-
-async function resetDatabase() {
-    if (confirm('ATTENZIONE: Questa operazione cancellerà tutti i dati e ripristinerà il menu originale. Continuare?')) {
-        try {
-            await menuDB.clearDatabase();
-            await menuDB.seedDatabase();
-            await loadDataFromDatabase();
-            
-            loadCategories();
-            loadProducts();
-            
-            showNotification('Database ripristinato con successo');
-        } catch (error) {
-            console.error('Errore reset database:', error);
-            showNotification('Errore nel ripristino del database');
+        function cancelMenuManagement() {
+            showProductTable();
         }
-    }
-}
 
-// ==========================================
-// INIZIALIZZAZIONE AL CARICAMENTO PAGINA
-// ==========================================
+        function showAddProductForm() {
+            hideAllPanels();
+            document.getElementById('productForm').classList.remove('hidden');
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('BiblioCafè Admin Panel caricato con database IndexedDB');
-});
+            // Reset form
+            document.getElementById('productId').value = '';
+            document.getElementById('category').value = currentCategories.length > 0 ? currentCategories[0].id : '';
+            document.getElementById('name').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('price').value = '';
+        }
+
+        function hideProductForm() {
+            hideAllPanels();
+            document.getElementById('productTable').classList.remove('hidden');
+        }
+
+        async function handleProductSubmit(event) {
+            event.preventDefault();
+
+            try {
+                const productId = document.getElementById('productId').value;
+                const productData = {
+                    category: document.getElementById('category').value,
+                    name: document.getElementById('name').value,
+                    description: document.getElementById('description').value,
+                    price: parseFloat(document.getElementById('price').value)
+                };
+
+                let result;
+                let successMessage;
+
+                if (productId) {
+                    // MODIFICA PRODOTTO ESISTENTE
+                    console.log('Aggiornamento prodotto ID:', productId, 'con dati:', productData);
+                    result = await menuDB.updateProduct(parseInt(productId), productData);
+                    successMessage = 'Prodotto modificato con successo';
+                } else {
+                    // NUOVO PRODOTTO
+                    const nextId = await menuDB.getNextProductId();
+                    const newProduct = {
+                        id: nextId,
+                        ...productData
+                    };
+                    console.log('Creazione nuovo prodotto:', newProduct);
+                    result = await menuDB.addProduct(newProduct);
+                    successMessage = 'Prodotto aggiunto con successo';
+                }
+
+                // Ricarica i dati dal database
+                await loadDataFromDatabase();
+
+                // Chiudi il form e mostra la tabella aggiornata
+                hideProductForm();
+                loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
+
+                showNotification(successMessage);
+                console.log('Operazione completata:', result);
+
+            } catch (error) {
+                console.error('Errore salvataggio prodotto:', error);
+                showNotification('Errore nel salvataggio del prodotto: ' + error.message);
+            }
+        }
+
+        // ==========================================
+        // FUNZIONI UTILITÀ AGGIUNTIVE
+        // ==========================================
+
+        function exportMenuData() {
+            try {
+                const menuData = {
+                    categories: currentCategories,
+                    products: currentProducts,
+                    exportDate: new Date().toISOString()
+                };
+
+                const dataStr = JSON.stringify(menuData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `bibliocafe-menu-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+
+                showNotification('Menu esportato con successo');
+            } catch (error) {
+                console.error('Errore esportazione:', error);
+                showNotification('Errore nell\'esportazione del menu');
+            }
+        }
+
+        async function resetDatabase() {
+            if (confirm('ATTENZIONE: Questa operazione cancellerà tutti i dati e ripristinerà il menu originale. Continuare?')) {
+                try {
+                    await menuDB.clearDatabase();
+                    await menuDB.seedDatabase();
+                    await loadDataFromDatabase();
+
+                    loadCategories();
+                    loadProducts();
+
+                    showNotification('Database ripristinato con successo');
+                } catch (error) {
+                    console.error('Errore reset database:', error);
+                    showNotification('Errore nel ripristino del database');
+                }
+            }
+        }
+
+        // ==========================================
+        // GESTIONE CATEGORIE
+        // ==========================================
+
+        function showCategoryManagementPanel() {
+            hideAllPanels();
+            document.getElementById('categoryManagementPanel').classList.remove('hidden');
+        }
+
+        function hideCategoryManagementPanel() {
+            hideAllPanels();
+            document.getElementById('productTable').classList.remove('hidden');
+        }
+
+        function showAddCategoryForm() {
+            hideAllPanels();
+            document.getElementById('categoryForm').classList.remove('hidden');
+
+            // Configura il form per aggiunta
+            document.getElementById('categoryFormMode').value = 'add';
+            document.getElementById('categoryFormTitle').textContent = 'Aggiungi Categoria';
+            document.getElementById('categorySubmitBtn').textContent = 'Aggiungi';
+            document.getElementById('categorySelectGroup').style.display = 'none';
+
+            // Reset form
+            document.getElementById('originalCategoryId').value = '';
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryEmoji').value = '';
+            document.getElementById('categoryId').disabled = false;
+        }
+
+        function showEditCategoryForm() {
+            hideAllPanels();
+            document.getElementById('categoryForm').classList.remove('hidden');
+
+            // Configura il form per modifica
+            document.getElementById('categoryFormMode').value = 'edit';
+            document.getElementById('categoryFormTitle').textContent = 'Modifica Categoria';
+            document.getElementById('categorySubmitBtn').textContent = 'Modifica';
+            document.getElementById('categorySelectGroup').style.display = 'block';
+
+            // Popola il select delle categorie
+            const categorySelect = document.getElementById('categoryToEdit');
+            categorySelect.innerHTML = currentCategories.map(category => `
+        <option value="${category.id}">${category.emoji} ${category.name}</option>
+    `).join('');
+
+            // Carica i dati della prima categoria
+            if (currentCategories.length > 0) {
+                loadCategoryForEdit(currentCategories[0].id);
+            }
+
+            // Listener per il cambio di selezione
+            categorySelect.onchange = (e) => loadCategoryForEdit(e.target.value);
+        }
+
+        function showDeleteCategoryForm() {
+            hideAllPanels();
+            document.getElementById('categoryForm').classList.remove('hidden');
+
+            // Configura il form per eliminazione
+            document.getElementById('categoryFormMode').value = 'delete';
+            document.getElementById('categoryFormTitle').textContent = 'Elimina Categoria';
+            document.getElementById('categorySubmitBtn').textContent = 'Elimina';
+            document.getElementById('categorySubmitBtn').className = 'btn btn-danger';
+            document.getElementById('categorySelectGroup').style.display = 'block';
+
+            // Popola il select delle categorie
+            const categorySelect = document.getElementById('categoryToEdit');
+            categorySelect.innerHTML = currentCategories.map(category => `
+        <option value="${category.id}">${category.emoji} ${category.name}</option>
+    `).join('');
+
+            // Carica i dati della prima categoria
+            if (currentCategories.length > 0) {
+                loadCategoryForEdit(currentCategories[0].id);
+            }
+
+            // Disabilita i campi per la modalità eliminazione
+            document.getElementById('categoryId').disabled = true;
+            document.getElementById('categoryName').disabled = true;
+            document.getElementById('categoryEmoji').disabled = true;
+
+            // Listener per il cambio di selezione
+            categorySelect.onchange = (e) => loadCategoryForEdit(e.target.value);
+        }
+
+        function loadCategoryForEdit(categoryId) {
+            const category = currentCategories.find(c => c.id === categoryId);
+            if (category) {
+                document.getElementById('originalCategoryId').value = category.id;
+                document.getElementById('categoryId').value = category.id;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryEmoji').value = category.emoji;
+            }
+        }
+
+        function hideCategoryForm() {
+            hideAllPanels();
+            document.getElementById('categoryManagementPanel').classList.remove('hidden');
+
+            // Reset form styling
+            document.getElementById('categorySubmitBtn').className = 'btn btn-primary';
+            document.getElementById('categoryId').disabled = false;
+            document.getElementById('categoryName').disabled = false;
+            document.getElementById('categoryEmoji').disabled = false;
+        }
+
+        async function handleCategorySubmit(event) {
+            event.preventDefault();
+
+            const mode = document.getElementById('categoryFormMode').value;
+            const categoryData = {
+                id: document.getElementById('categoryId').value.toLowerCase().replace(/\s+/g, '-'),
+                name: document.getElementById('categoryName').value,
+                emoji: document.getElementById('categoryEmoji').value
+            };
+
+            try {
+                if (mode === 'add') {
+                    // Verifica che l'ID non esista già
+                    const existingCategory = currentCategories.find(c => c.id === categoryData.id);
+                    if (existingCategory) {
+                        showNotification('Errore: ID categoria già esistente');
+                        return;
+                    }
+
+                    await menuDB.addCategory(categoryData);
+                    showNotification('Categoria aggiunta con successo');
+
+                } else if (mode === 'edit') {
+                    const originalId = document.getElementById('originalCategoryId').value;
+
+                    // Se l'ID è cambiato, verifica che il nuovo ID non esista già
+                    if (categoryData.id !== originalId) {
+                        const existingCategory = currentCategories.find(c => c.id === categoryData.id);
+                        if (existingCategory) {
+                            showNotification('Errore: ID categoria già esistente');
+                            return;
+                        }
+
+                        // Elimina la vecchia categoria e aggiunge la nuova
+                        await menuDB.deleteCategory(originalId);
+                        await menuDB.addCategory(categoryData);
+
+                        // Aggiorna tutti i prodotti che usano la vecchia categoria
+                        const productsToUpdate = currentProducts.filter(p => p.category === originalId);
+                        for (const product of productsToUpdate) {
+                            await menuDB.updateProduct(product.id, { ...product, category: categoryData.id });
+                        }
+                    } else {
+                        // Solo aggiornamento nome/emoji
+                        await menuDB.addCategory(categoryData);
+                    }
+
+                    showNotification('Categoria modificata con successo');
+
+                } else if (mode === 'delete') {
+                    const categoryId = document.getElementById('originalCategoryId').value;
+
+                    // Verifica se ci sono prodotti che usano questa categoria
+                    const productsInCategory = currentProducts.filter(p => p.category === categoryId);
+                    if (productsInCategory.length > 0) {
+                        const confirmDelete = confirm(`Attenzione: Ci sono ${productsInCategory.length} prodotti in questa categoria. Eliminarla cancellerà anche tutti i prodotti. Continuare?`);
+                        if (!confirmDelete) {
+                            return;
+                        }
+
+                        // Elimina tutti i prodotti della categoria
+                        for (const product of productsInCategory) {
+                            await menuDB.deleteProduct(product.id);
+                        }
+                    }
+
+                    await menuDB.deleteCategory(categoryId);
+                    showNotification('Categoria eliminata con successo');
+                }
+
+                // Ricarica i dati e aggiorna l'interfaccia
+                await loadDataFromDatabase();
+                loadCategories();
+                hideCategoryForm();
+                showCategoryManagementPanel();
+
+            } catch (error) {
+                console.error('Errore gestione categoria:', error);
+                showNotification('Errore: ' + error.message);
+            }
+        }
+
+
+        // ==========================================
+        // INIZIALIZZAZIONE AL CARICAMENTO PAGINA
+        // ==========================================
+
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('BiblioCafè Admin Panel caricato con database IndexedDB');
+        });
     </script>
 
 
 </body>
+
 </html>
