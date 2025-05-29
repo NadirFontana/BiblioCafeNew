@@ -22,7 +22,7 @@ class MenuDatabase {
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                
+
                 // Crea le tabelle se non esistono
                 if (!db.objectStoreNames.contains('categories')) {
                     const categoryStore = db.createObjectStore('categories', { keyPath: 'id' });
@@ -59,17 +59,17 @@ class MenuDatabase {
             { id: 6, category: "colazione", name: "Pancake Stack", description: "Con sciroppo d'acero, frutti di bosco o Nutella", price: 6.5 },
             { id: 7, category: "colazione", name: "Yogurt e Granola", description: "Yogurt greco con granola, miele e frutta fresca", price: 5 },
             { id: 8, category: "colazione", name: "Uova Strapazzate", description: "Con toast e bacon croccante", price: 7.5 },
-            
+
             // SNACK
             { id: 9, category: "snack", name: "Focaccia Farcita", description: "Con prosciutto crudo, mozzarella e pomodorini", price: 6.5 },
             { id: 10, category: "snack", name: "Club Sandwich", description: "Pollo, bacon, uovo, lattuga, pomodoro e maionese", price: 8 },
             { id: 11, category: "snack", name: "Tagliere Misto", description: "Selezione di salumi e formaggi con focaccia", price: 12 },
-            
+
             // CAFFETTERIA
             { id: 12, category: "caffetteria", name: "Espresso", description: "Classico caffè espresso", price: 1.2 },
             { id: 13, category: "caffetteria", name: "Cappuccino", description: "Con latte montato a vapore", price: 1.8 },
             { id: 14, category: "caffetteria", name: "Caffè Americano", description: "Espresso allungato con acqua calda", price: 1.5 },
-            
+
             // APERITIVI
             { id: 15, category: "aperitivi", name: "Spritz Aperol", description: "Prosecco, Aperol e soda", price: 7 },
             { id: 16, category: "aperitivi", name: "Spritz Campari", description: "Prosecco, Campari e soda", price: 7 },
@@ -77,7 +77,7 @@ class MenuDatabase {
             { id: 18, category: "aperitivi", name: "Americano", description: "Campari, Vermouth rosso e soda", price: 7 },
             { id: 19, category: "aperitivi", name: "Crodino", description: "Analcolico amaro", price: 3.5 },
             { id: 20, category: "aperitivi", name: "San Bitter", description: "Analcolico rosso", price: 3.5 },
-            
+
             // COCKTAILS
             { id: 21, category: "cocktails", name: "Negroni", description: "Gin, Vermouth rosso e Campari", price: 8 },
             { id: 22, category: "cocktails", name: "Negroni Sbagliato", description: "Prosecco, Vermouth rosso e Campari", price: 8 },
@@ -87,7 +87,7 @@ class MenuDatabase {
             { id: 26, category: "cocktails", name: "Martini Cocktail", description: "Gin o Vodka e Vermouth dry", price: 8 },
             { id: 27, category: "cocktails", name: "Old Fashioned", description: "Bourbon, zucchero e bitter", price: 9 },
             { id: 28, category: "cocktails", name: "Margarita", description: "Tequila, Triple Sec e lime", price: 8 },
-            
+
             // SOFT DRINKS
             { id: 29, category: "soft-drinks", name: "Spremuta d'Arancia", description: "Succo d'arancia fresco", price: 4 },
             { id: 30, category: "soft-drinks", name: "Centrifugati", description: "Frutta e verdura fresca a scelta", price: 5 },
@@ -187,6 +187,41 @@ class MenuDatabase {
         });
     }
 
+    // NUOVO METODO: Aggiorna un prodotto esistente
+    async updateProduct(id, updatedData) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Prima recupera il prodotto esistente
+                const existingProduct = await this.getProduct(id);
+                if (!existingProduct) {
+                    reject(new Error(`Prodotto con ID ${id} non trovato`));
+                    return;
+                }
+
+                // Crea il prodotto aggiornato mantenendo l'ID originale
+                const updatedProduct = {
+                    ...existingProduct,
+                    ...updatedData,
+                    id: id // Assicurati che l'ID rimanga invariato
+                };
+
+                // Salva il prodotto aggiornato
+                const transaction = this.db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                const request = store.put(updatedProduct);
+
+                request.onsuccess = () => {
+                    console.log('Prodotto aggiornato con successo:', updatedProduct);
+                    resolve(updatedProduct);
+                };
+                request.onerror = () => reject(request.error);
+
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
     async getProduct(id) {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['products'], 'readonly');
@@ -221,10 +256,10 @@ class MenuDatabase {
     async clearDatabase() {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(['categories', 'products'], 'readwrite');
-            
+
             const clearCategories = transaction.objectStore('categories').clear();
             const clearProducts = transaction.objectStore('products').clear();
-            
+
             transaction.oncomplete = () => resolve();
             transaction.onerror = () => reject(transaction.error);
         });
