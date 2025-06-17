@@ -14,6 +14,7 @@
 <body>
     <div id="notification" class="notification"></div>
 
+    <!-- Login Form -->
     <div id="loginForm">
         <h2 style="margin-bottom: 1.5rem;">Admin Login</h2>
         <form onsubmit="handleLogin(event)">
@@ -29,75 +30,59 @@
         </form>
     </div>
 
+    <!-- Admin Panel -->
     <div id="adminPanel" class="hidden">
         <header class="admin-header">
             <h1>BiblioCafè Admin Panel</h1>
-            <button onclick="handleLogout()" class="btn btn-danger">Logout</button>
+            <button onclick="logout()" class="btn btn-danger">Logout</button>
         </header>
 
+        <!-- Mobile Categories -->
         <div class="categories-mobile">
-            <div class="categories-scroll" id="categoryListMobile">
-                <!-- Le categorie verranno inserite qui via JavaScript -->
-            </div>
+            <div class="categories-scroll" id="categoryListMobile"></div>
         </div>
 
         <div class="admin-container">
             <div class="admin-grid">
+                <!-- Sidebar -->
                 <aside class="sidebar">
                     <h3 style="margin-bottom: 1rem;">Categorie</h3>
                     <div id="categoryList"></div>
                 </aside>
 
+                <!-- Main Content -->
                 <main class="main-content">
+                    <!-- Product Table -->
                     <div id="productTable"></div>
 
-                    <div id="menuManagementPanel" class="hidden"
-                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
-                        <!-- This will be populated dynamically by JavaScript -->
-                    </div>
-
-                    <div id="qrCodePanel" class="hidden"
-                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
+                    <!-- QR Code Panel -->
+                    <div id="qrCodePanel" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
                         <h3 style="margin-bottom: 2rem; color: var(--primary-color);">QR Code Menu</h3>
-                        <div style="margin-bottom: 2rem;">
-                            <p style="color: var(--text-color); margin-bottom: 1rem;">Scansiona questo QR Code per
-                                accedere al menu digitale:</p>
-                            <div id="qrCodeContainer" style="display: flex; justify-content: center; margin: 2rem 0;">
-                                <!-- QR Code will be generated here -->
-                            </div>
-                            <p style="color: var(--accent-color); font-size: 0.9rem; margin-top: 1rem;">
-                                <strong>URL:</strong> <span id="menuUrl"></span>
-                            </p>
-                        </div>
+                        <div id="qrCodeContainer" style="display: flex; justify-content: center; margin: 2rem 0;"></div>
+                        <p style="color: var(--accent-color); font-size: 0.9rem; margin-top: 1rem;">
+                            <strong>URL:</strong> Menu Digitale BiblioCafè
+                        </p>
                         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                             <button onclick="printQRCode()" class="btn btn-primary">🖨️ Stampa QR Code</button>
-                            <button onclick="hideQRCodePanel()" class="btn btn-danger">⬅️ Indietro</button>
+                            <button onclick="showProducts()" class="btn btn-danger">⬅️ Indietro</button>
                         </div>
                     </div>
 
-                    <div id="categoryManagementPanel" class="hidden"
-                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
+                    <!-- Category Management Panel -->
+                    <div id="categoryManagement" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
                         <h3 style="margin-bottom: 2rem; color: var(--primary-color);">Gestione Categorie</h3>
-                        <div
-                            style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; margin: 0 auto;">
-                            <button onclick="showAddCategoryForm()" class="btn btn-primary" style="width: 100%;">
-                                ➕ Aggiungi Categoria
-                            </button>
-                            <button onclick="showEditCategoryForm()" class="btn btn-primary" style="width: 100%;">
-                                ✏️ Modifica Categoria
-                            </button>
-                            <button onclick="showDeleteCategoryForm()" class="btn btn-primary" style="width: 100%;">
-                                🗑️ Elimina Categoria
-                            </button>
-                            <button onclick="hideCategoryManagementPanel()" class="btn btn-danger" style="width: 100%;">
-                                ⬅️ Indietro
-                            </button>
+                        <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; margin: 0 auto;">
+                            <button onclick="showCategoryForm('add')" class="btn btn-primary">➕ Aggiungi Categoria</button>
+                            <button onclick="showCategoryForm('edit')" class="btn btn-primary">✏️ Modifica Categoria</button>
+                            <button onclick="showCategoryForm('delete')" class="btn btn-primary">🗑️ Elimina Categoria</button>
+                            <button onclick="showProducts()" class="btn btn-danger">⬅️ Indietro</button>
                         </div>
                     </div>
 
+                    <!-- Product Form -->
                     <div id="productForm" class="hidden">
                         <h3 style="margin-bottom: 1.5rem;">Aggiungi/Modifica Prodotto</h3>
-                        <form onsubmit="handleProductSubmit(event)">
+                        <form onsubmit="saveProduct(event)">
                             <input type="hidden" id="productId">
                             <div class="form-group">
                                 <label for="category">Categoria</label>
@@ -117,26 +102,26 @@
                             </div>
                             <div style="display: flex; gap: 1rem;">
                                 <button type="submit" class="btn btn-primary">Salva</button>
-                                <button type="button" onclick="hideProductForm()"
-                                    class="btn btn-danger">Annulla</button>
+                                <button type="button" onclick="showProducts()" class="btn btn-danger">Annulla</button>
                             </div>
                         </form>
                     </div>
+
+                    <!-- Category Form -->
                     <div id="categoryForm" class="hidden">
                         <h3 id="categoryFormTitle" style="margin-bottom: 1.5rem;">Gestione Categoria</h3>
-                        <form onsubmit="handleCategorySubmit(event)">
-                            <input type="hidden" id="categoryFormMode">
+                        <form onsubmit="saveCategory(event)">
+                            <input type="hidden" id="categoryMode">
                             <input type="hidden" id="originalCategoryId">
 
-                            <div class="form-group" id="categorySelectGroup" style="display: none;">
+                            <div class="form-group" id="categorySelect" style="display: none;">
                                 <label for="categoryToEdit">Seleziona Categoria</label>
-                                <select id="categoryToEdit" class="form-control"></select>
+                                <select id="categoryToEdit" class="form-control" onchange="loadCategoryData()"></select>
                             </div>
 
                             <div class="form-group">
                                 <label for="categoryId">ID Categoria</label>
-                                <input type="text" id="categoryId" class="form-control" required pattern="[a-z0-9-]+"
-                                    title="Solo lettere minuscole, numeri e trattini">
+                                <input type="text" id="categoryId" class="form-control" required pattern="[a-z0-9-]+" title="Solo lettere minuscole, numeri e trattini">
                             </div>
 
                             <div class="form-group">
@@ -151,8 +136,7 @@
 
                             <div style="display: flex; gap: 1rem;">
                                 <button type="submit" id="categorySubmitBtn" class="btn btn-primary">Salva</button>
-                                <button type="button" onclick="hideCategoryForm()"
-                                    class="btn btn-danger">Annulla</button>
+                                <button type="button" onclick="showCategoryManagement()" class="btn btn-danger">Annulla</button>
                             </div>
                         </form>
                     </div>
@@ -161,47 +145,48 @@
         </div>
     </div>
 
-    <!-- Carica il database manager -->
+    <!-- Scripts -->
     <script src="db.js"></script>
-    <!-- QR Code Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 
     <script>
         // ==========================================
-        // DATABASE MANAGER E CREDENZIALI
+        // CONFIGURAZIONE E VARIABILI GLOBALI
         // ==========================================
-
-        // Credenziali admin
+        
         const ADMIN_CREDENTIALS = {
             username: 'caffetteria',
             password: 'menu2024'
         };
 
-        // Variabili globali
-        let currentCategories = [];
-        let currentProducts = [];
-        let currentCategoryFilter = null;
-        let qrCodeInstance = null;
+        let categories = [];
+        let products = [];
+        let currentFilter = null;
 
         // ==========================================
-        // FUNZIONI UTILITARIE
+        // UTILITÀ
         // ==========================================
 
         function showNotification(message, duration = 3000) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, duration);
+            setTimeout(() => notification.style.display = 'none', duration);
         }
 
-        function getCategoryData(categoryId) {
-            return currentCategories.find(c => c.id === categoryId);
+        function hideAllPanels() {
+            ['productTable', 'qrCodePanel', 'categoryManagement', 'productForm', 'categoryForm'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+        }
+
+        function getCategoryName(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            return category ? `${category.emoji} ${category.name}` : categoryId;
         }
 
         // ==========================================
-        // GESTIONE LOGIN/LOGOUT
+        // AUTENTICAZIONE
         // ==========================================
 
         function handleLogin(event) {
@@ -212,505 +197,169 @@
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
                 document.getElementById('loginForm').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
+                initializeApp();
                 showNotification('Login effettuato con successo');
-
-                // Inizializza l'interfaccia admin
-                initializeAdminPanel();
             } else {
                 showNotification('Credenziali non valide');
             }
         }
 
-        function handleLogout() {
+        function logout() {
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('adminPanel').classList.add('hidden');
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            showNotification('Logout effettuato con successo');
+            showNotification('Logout effettuato');
         }
 
         // ==========================================
-        // INIZIALIZZAZIONE ADMIN PANEL
+        // INIZIALIZZAZIONE
         // ==========================================
 
-        async function initializeAdminPanel() {
+        async function initializeApp() {
             try {
-                // Inizializza il database
                 await menuDB.init();
                 await menuDB.seedDatabase();
-
-                // Carica dati dal database
-                await loadDataFromDatabase();
-
-                // Popola l'interfaccia
-                loadCategories();
-                loadProducts();
-
-                console.log('Admin panel inizializzato con successo');
-                console.log(`Categorie: ${currentCategories.length}, Prodotti: ${currentProducts.length}`);
-
+                await loadData();
+                renderCategories();
+                showProducts();
             } catch (error) {
-                console.error('Errore inizializzazione admin panel:', error);
-                showNotification('Errore nel caricamento dei dati dal database');
+                console.error('Errore inizializzazione:', error);
+                showNotification('Errore nel caricamento dei dati');
             }
         }
 
-        async function loadDataFromDatabase() {
-            try {
-                currentCategories = await menuDB.getAllCategories();
-                currentProducts = await menuDB.getAllProducts();
-            } catch (error) {
-                console.error('Errore nel caricamento dati:', error);
-                throw error;
-            }
+        async function loadData() {
+            categories = await menuDB.getAllCategories();
+            products = await menuDB.getAllProducts();
         }
 
-        function loadCategories() {
-            // Popola la sidebar delle categorie (desktop)
-            const categoryList = document.getElementById('categoryList');
-            categoryList.innerHTML = currentCategories.map(category => `
-        <button 
-            onclick="filterProducts('${category.id}')" 
-            class="btn btn-primary" 
-            style="width: 100%; margin-bottom: 0.5rem;">
-            ${category.emoji} ${category.name}
-        </button>
-    `).join('') + `
-        <button 
-            onclick="showAllProducts()" 
-            class="btn btn-primary" 
-            style="width: 100%; margin-bottom: 0.5rem;">
-            📋 Tutti i Prodotti
-        </button>
-        <button 
-            onclick="showAddProductForm()" 
-            class="btn btn-primary" 
-            style="width: 100%; margin-bottom: 0.5rem;">
-            ➕ Aggiungi Prodotto
-        </button>
-        <button 
-            onclick="showCategoryManagementPanel()" 
-            class="btn btn-primary" 
-            style="width: 100%; margin-bottom: 0.5rem;">
-            📂 Gestisci Categorie
-        </button>
-        <button 
-            onclick="showQRCodePanel()" 
-            class="btn btn-primary" 
-            style="width: 100%; margin-bottom: 0.5rem;">
-            📱 QR Code
-        </button>
-    `;
+        // ==========================================
+        // RENDERING CATEGORIE
+        // ==========================================
 
-            // STESSO CAMBIAMENTO per categoryListMobile:
-            categoryListMobile.innerHTML = currentCategories.map(category => `
-        <button 
-            onclick="filterProducts('${category.id}')" 
-            class="nav-button">
-            ${category.emoji} ${category.name}
-        </button>
-    `).join('') + `
-        <button 
-            onclick="showAllProducts()" 
-            class="nav-button">
-            📋 Tutti
-        </button>
-        <button 
-            onclick="showAddProductForm()" 
-            class="nav-button">
-            ➕ Aggiungi
-        </button>
-        <button 
-            onclick="showCategoryManagementPanel()" 
-            class="nav-button">
-            📂 Categorie
-        </button>
-        <button 
-            onclick="showQRCodePanel()" 
-            class="nav-button">
-            📱 QR Code
-        </button>
-    `;
+        function renderCategories() {
+            const buttons = [
+                ...categories.map(cat => `
+                    <button onclick="filterProducts('${cat.id}')" class="btn btn-primary">
+                        ${cat.emoji} ${cat.name}
+                    </button>
+                `),
+                '<button onclick="showProducts()" class="btn btn-primary">📋 Tutti i Prodotti</button>',
+                '<button onclick="showProductForm()" class="btn btn-primary">➕ Aggiungi Prodotto</button>',
+                '<button onclick="showCategoryManagement()" class="btn btn-primary">📂 Gestisci Categorie</button>',
+                '<button onclick="showQRCode()" class="btn btn-primary">📱 QR Code</button>'
+            ];
 
-            // Popola il select delle categorie nel form
-            const categorySelect = document.getElementById('category');
-            categorySelect.innerHTML = currentCategories.map(category => `
-        <option value="${category.id}">${category.emoji} ${category.name}</option>
-    `).join('');
+            // Desktop sidebar
+            document.getElementById('categoryList').innerHTML = buttons.map(btn => 
+                btn.replace('class="btn btn-primary"', 'class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;"')
+            ).join('');
+
+            // Mobile scroll
+            document.getElementById('categoryListMobile').innerHTML = buttons.map(btn =>
+                btn.replace('class="btn btn-primary"', 'class="nav-button"')
+            ).join('');
+
+            // Form select
+            document.getElementById('category').innerHTML = categories.map(cat => 
+                `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
+            ).join('');
         }
 
         // ==========================================
         // GESTIONE PRODOTTI
         // ==========================================
 
-        function loadProducts(categoryFilter = null) {
-            currentCategoryFilter = categoryFilter;
+        function showProducts() {
+            hideAllPanels();
+            document.getElementById('productTable').classList.remove('hidden');
+            renderProducts();
+        }
 
-            let filteredProducts = categoryFilter
-                ? currentProducts.filter(p => p.category === categoryFilter)
-                : currentProducts;
+        function filterProducts(categoryId) {
+            currentFilter = categoryId;
+            showProducts();
+        }
 
-            const productTable = document.getElementById('productTable');
+        function renderProducts() {
+            const filteredProducts = currentFilter 
+                ? products.filter(p => p.category === currentFilter)
+                : products;
+
+            const container = document.getElementById('productTable');
 
             if (filteredProducts.length === 0) {
-                productTable.innerHTML = `
-            <div style="text-align: center; padding: 2rem; color: #666;">
-                <h3>Nessun prodotto trovato</h3>
-                <p>Non ci sono prodotti ${categoryFilter ? 'in questa categoria' : 'nel database'}</p>
-                <button onclick="showAddProductForm()" class="btn btn-primary">Aggiungi Prodotto</button>
-            </div>
-        `;
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <h3>Nessun prodotto trovato</h3>
+                        <p>Non ci sono prodotti ${currentFilter ? 'in questa categoria' : 'nel database'}</p>
+                        <button onclick="showProductForm()" class="btn btn-primary">Aggiungi Prodotto</button>
+                    </div>
+                `;
                 return;
             }
 
-            productTable.innerHTML = `
-        <div class="products-grid">
-            ${filteredProducts.map(product => {
-                const categoryData = getCategoryData(product.category);
-                return `
-                    <div class="product-card">
-                        <div class="product-header">
-                            <h3 class="product-title">${product.name}</h3>
-                            <span class="product-category">
-                                ${categoryData?.emoji || ''} ${categoryData?.name || product.category}
-                            </span>
-                        </div>
-                        <p class="product-description">${product.description}</p>
-                        <div class="product-footer">
-                            <span class="product-price">€${product.price.toFixed(2)}</span>
-                            <div class="product-actions">
-                                <button onclick="editProduct(${product.id})" class="btn btn-primary">Modifica</button>
-                                <button onclick="deleteProduct(${product.id})" class="btn btn-danger">Elimina</button>
+            container.innerHTML = `
+                <div class="products-grid">
+                    ${filteredProducts.map(product => `
+                        <div class="product-card">
+                            <div class="product-header">
+                                <h3 class="product-title">${product.name}</h3>
+                                <span class="product-category">${getCategoryName(product.category)}</span>
+                            </div>
+                            <p class="product-description">${product.description}</p>
+                            <div class="product-footer">
+                                <span class="product-price">€${product.price.toFixed(2)}</span>
+                                <div class="product-actions">
+                                    <button onclick="editProduct(${product.id})" class="btn btn-primary">Modifica</button>
+                                    <button onclick="deleteProduct(${product.id})" class="btn btn-danger">Elimina</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
+                    `).join('')}
+                </div>
+            `;
         }
 
-        function filterProducts(category) {
-            loadProducts(category);
-        }
-
-        function showAllProducts() {
-            loadProducts();
+        function showProductForm(productId = null) {
+            hideAllPanels();
+            document.getElementById('productForm').classList.remove('hidden');
+            
+            if (productId) {
+                const product = products.find(p => p.id === productId);
+                document.getElementById('productId').value = product.id;
+                document.getElementById('category').value = product.category;
+                document.getElementById('name').value = product.name;
+                document.getElementById('description').value = product.description;
+                document.getElementById('price').value = product.price;
+            } else {
+                document.getElementById('productForm').reset();
+                document.getElementById('productId').value = '';
+            }
         }
 
         async function editProduct(id) {
-            try {
-                const product = await menuDB.getProduct(id);
-                if (product) {
-                    hideAllPanels();
-                    document.getElementById('productForm').classList.remove('hidden');
-
-                    document.getElementById('productId').value = product.id;
-                    document.getElementById('category').value = product.category;
-                    document.getElementById('name').value = product.name;
-                    document.getElementById('description').value = product.description;
-                    document.getElementById('price').value = product.price;
-                }
-            } catch (error) {
-                console.error('Errore nel caricamento prodotto:', error);
-                showNotification('Errore nel caricamento del prodotto');
-            }
+            const product = await menuDB.getProduct(id);
+            if (product) showProductForm(product.id);
         }
 
         async function deleteProduct(id) {
             if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
                 try {
                     await menuDB.deleteProduct(id);
-                    await loadDataFromDatabase(); // Ricarica i dati
-                    loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
-                    showNotification('Prodotto eliminato con successo');
+                    await loadData();
+                    showProducts();
+                    showNotification('Prodotto eliminato');
                 } catch (error) {
-                    console.error('Errore eliminazione prodotto:', error);
-                    showNotification('Errore nell\'eliminazione del prodotto');
+                    showNotification('Errore nell\'eliminazione');
                 }
             }
         }
 
-        // ==========================================
-        // GESTIONE PANNELLI
-        // ==========================================
-
-        function hideAllPanels() {
-            document.getElementById('productTable').classList.add('hidden');
-            document.getElementById('menuManagementPanel').classList.add('hidden');
-            document.getElementById('qrCodePanel').classList.add('hidden');
-            document.getElementById('categoryManagementPanel').classList.add('hidden'); // NUOVO
-            document.getElementById('productForm').classList.add('hidden');
-            document.getElementById('categoryForm').classList.add('hidden'); // NUOVO
-        }
-
-        function showProductTable() {
-            hideAllPanels();
-            document.getElementById('productTable').classList.remove('hidden');
-        }
-
-        // ==========================================
-        // GESTIONE QR CODE
-        // ==========================================
-
-        function showQRCodePanel() {
-            hideAllPanels();
-            document.getElementById('qrCodePanel').classList.remove('hidden');
-            generateQRCode();
-        }
-
-        function hideQRCodePanel() {
-            hideAllPanels();
-            document.getElementById('productTable').classList.remove('hidden');
-        }
-
-        async function generateQRCode() {
-            try {
-                // Mostra un messaggio personalizzato invece dell'URL completo
-                document.getElementById('menuUrl').textContent = 'Menu Digitale BiblioCafè';
-
-                // Pulisce il container del QR code
-                const qrContainer = document.getElementById('qrCodeContainer');
-                qrContainer.innerHTML = '';
-
-                // Crea un elemento immagine invece di generare il QR code
-                const img = document.createElement('img');
-                img.src = './img/QRMenu.png'; // Percorso relativo all'immagine
-                img.alt = 'QR Code Menu BiblioCafè';
-                img.style.width = '300px';
-                img.style.height = '300px';
-                img.style.border = '2px solid var(--primary-color)';
-                img.style.borderRadius = '12px';
-                img.style.boxShadow = '0 4px 12px var(--shadow)';
-
-                // Gestisci eventuali errori di caricamento dell'immagine
-                img.onerror = function () {
-                    console.error('Errore nel caricamento dell\'immagine QR Code');
-                    qrContainer.innerHTML = `
-                <div style="
-                    width: 300px; 
-                    height: 300px; 
-                    border: 2px dashed var(--primary-color); 
-                    border-radius: 12px; 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: center; 
-                    color: var(--text-color);
-                    text-align: center;
-                    font-size: 0.9rem;
-                ">
-                    <div>
-                        📱<br>
-                        Immagine QR Code<br>
-                        non trovata
-                    </div>
-                </div>
-            `;
-                    showNotification('Immagine QR Code non trovata');
-                };
-
-                img.onload = function () {
-                    console.log('QR Code caricato con successo');
-                };
-
-                qrContainer.appendChild(img);
-
-                // Salva il riferimento per le funzioni di download e stampa
-                qrCodeInstance = img;
-
-            } catch (error) {
-                console.error('Errore nel caricamento del QR Code:', error);
-                showNotification('Errore nel caricamento del QR Code');
-            }
-        }
-
-        function downloadQRCode() {
-            if (!qrCodeInstance) {
-                showNotification('QR Code non disponibile per il download');
-                return;
-            }
-
-            try {
-                // Se è un'immagine, usa il percorso diretto
-                if (qrCodeInstance.tagName === 'IMG') {
-                    const link = document.createElement('a');
-                    link.download = 'bibliocafe-menu-qr.png';
-                    link.href = qrCodeInstance.src;
-                    link.click();
-
-                    showNotification('QR Code scaricato con successo');
-                }
-                // Se è un canvas (per compatibilità con codice precedente)
-                else if (qrCodeInstance.tagName === 'CANVAS') {
-                    const link = document.createElement('a');
-                    link.download = 'bibliocafe-menu-qr.png';
-                    link.href = qrCodeInstance.toDataURL('image/png');
-                    link.click();
-
-                    showNotification('QR Code scaricato con successo');
-                }
-                else {
-                    showNotification('Formato QR Code non supportato per il download');
-                }
-
-            } catch (error) {
-                console.error('Errore nel download del QR Code:', error);
-                showNotification('Errore nel download del QR Code');
-            }
-        }
-
-        function printQRCode() {
-            if (!qrCodeInstance) {
-                showNotification('QR Code non disponibile per la stampa');
-                return;
-            }
-
-            try {
-                // Usa un messaggio personalizzato invece dell'URL del file system
-                const menuUrl = 'Menu Digitale BiblioCafè';
-
-                // Ottieni l'URL dell'immagine per la stampa
-                let imageUrl;
-                if (qrCodeInstance.tagName === 'IMG') {
-                    imageUrl = qrCodeInstance.src;
-                } else if (qrCodeInstance.tagName === 'CANVAS') {
-                    imageUrl = qrCodeInstance.toDataURL('image/png');
-                } else {
-                    showNotification('Formato QR Code non supportato per la stampa');
-                    return;
-                }
-
-                // Crea una finestra per la stampa
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>QR Code Menu - BiblioCafè</title>
-                <style>
-                    body {
-                        font-family: 'Poppins', Arial, sans-serif;
-                        text-align: center;
-                        padding: 2rem;
-                        background: white;
-                    }
-                    .qr-container {
-                        border: 2px solid #0c4840;
-                        border-radius: 12px;
-                        padding: 2rem;
-                        margin: 2rem auto;
-                        max-width: 400px;
-                        background: #f0f5f3;
-                    }
-                    h1 {
-                        color: #0c4840;
-                        margin-bottom: 1rem;
-                    }
-                    .qr-image {
-                        max-width: 100%; 
-                        height: auto;
-                        border-radius: 8px;
-                    }
-                    .url {
-                        font-size: 0.9rem;
-                        color: #15705f;
-                        margin-top: 1rem;
-                        word-break: break-all;
-                    }
-                    .instructions {
-                        margin-top: 1.5rem;
-                        color: #666;
-                        font-size: 0.9rem;
-                    }
-                    @media print {
-                        body { margin: 0; padding: 1rem; }
-                        .qr-container { border: 2px solid #000; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="qr-container">
-                    <h1>BiblioCafè</h1>
-                    <h2>Menu Digitale</h2>
-                    <img src="${imageUrl}" alt="QR Code Menu" class="qr-image">
-                    <div class="url">${menuUrl}</div>
-                    <div class="instructions">
-                        Inquadra il QR Code con la fotocamera del tuo smartphone<br>
-                        per accedere al menu digitale
-                    </div>
-                </div>
-            </body>
-            </html>
-        `);
-
-                printWindow.document.close();
-
-                // Stampa dopo che l'immagine è caricata
-                setTimeout(() => {
-                    printWindow.print();
-                    printWindow.close();
-                }, 500);
-
-                showNotification('QR Code inviato alla stampante');
-
-            } catch (error) {
-                console.error('Errore nella stampa del QR Code:', error);
-                showNotification('Errore nella stampa del QR Code');
-            }
-        }
-
-        // ==========================================
-        // GESTIONE FORM PRODOTTI
-        // ==========================================
-
-        function showMenuManagementPanel() {
-            hideAllPanels();
-            const menuManagementPanel = document.getElementById('menuManagementPanel');
-            menuManagementPanel.classList.remove('hidden');
-
-            menuManagementPanel.innerHTML = `
-        <div class="menu-management-options" style="display: flex; flex-direction: column; gap: 1rem;">
-            <h3 style="margin-bottom: 1rem;">Gestione Menu</h3>
-            <button onclick="showAddProductForm()" class="btn btn-primary" style="width: 100%;">
-                ➕ Aggiungi Prodotto
-            </button>
-            <button onclick="exportMenuData()" class="btn btn-primary" style="width: 100%;">
-                📥 Esporta Menu
-            </button>
-            <button onclick="resetDatabase()" class="btn btn-warning" style="width: 100%;">
-                🔄 Reset Database
-            </button>
-            <button onclick="cancelMenuManagement()" class="btn btn-danger" style="width: 100%;">
-                ⬅️ Indietro
-            </button>
-        </div>
-    `;
-        }
-
-        function cancelMenuManagement() {
-            showProductTable();
-        }
-
-        function showAddProductForm() {
-            hideAllPanels();
-            document.getElementById('productForm').classList.remove('hidden');
-
-            // Reset form
-            document.getElementById('productId').value = '';
-            document.getElementById('category').value = currentCategories.length > 0 ? currentCategories[0].id : '';
-            document.getElementById('name').value = '';
-            document.getElementById('description').value = '';
-            document.getElementById('price').value = '';
-        }
-
-        function hideProductForm() {
-            hideAllPanels();
-            document.getElementById('productTable').classList.remove('hidden');
-        }
-
-        async function handleProductSubmit(event) {
+        async function saveProduct(event) {
             event.preventDefault();
-
+            
             try {
                 const productId = document.getElementById('productId').value;
                 const productData = {
@@ -720,84 +369,20 @@
                     price: parseFloat(document.getElementById('price').value)
                 };
 
-                let result;
-                let successMessage;
-
                 if (productId) {
-                    // MODIFICA PRODOTTO ESISTENTE
-                    console.log('Aggiornamento prodotto ID:', productId, 'con dati:', productData);
-                    result = await menuDB.updateProduct(parseInt(productId), productData);
-                    successMessage = 'Prodotto modificato con successo';
+                    await menuDB.updateProduct(parseInt(productId), productData);
+                    showNotification('Prodotto modificato');
                 } else {
-                    // NUOVO PRODOTTO
                     const nextId = await menuDB.getNextProductId();
-                    const newProduct = {
-                        id: nextId,
-                        ...productData
-                    };
-                    console.log('Creazione nuovo prodotto:', newProduct);
-                    result = await menuDB.addProduct(newProduct);
-                    successMessage = 'Prodotto aggiunto con successo';
+                    await menuDB.addProduct({ id: nextId, ...productData });
+                    showNotification('Prodotto aggiunto');
                 }
 
-                // Ricarica i dati dal database
-                await loadDataFromDatabase();
-
-                // Chiudi il form e mostra la tabella aggiornata
-                hideProductForm();
-                loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
-
-                showNotification(successMessage);
-                console.log('Operazione completata:', result);
-
+                await loadData();
+                renderCategories();
+                showProducts();
             } catch (error) {
-                console.error('Errore salvataggio prodotto:', error);
-                showNotification('Errore nel salvataggio del prodotto: ' + error.message);
-            }
-        }
-
-        // ==========================================
-        // FUNZIONI UTILITÀ AGGIUNTIVE
-        // ==========================================
-
-        function exportMenuData() {
-            try {
-                const menuData = {
-                    categories: currentCategories,
-                    products: currentProducts,
-                    exportDate: new Date().toISOString()
-                };
-
-                const dataStr = JSON.stringify(menuData, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `bibliocafe-menu-${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-
-                showNotification('Menu esportato con successo');
-            } catch (error) {
-                console.error('Errore esportazione:', error);
-                showNotification('Errore nell\'esportazione del menu');
-            }
-        }
-
-        async function resetDatabase() {
-            if (confirm('ATTENZIONE: Questa operazione cancellerà tutti i dati e ripristinerà il menu originale. Continuare?')) {
-                try {
-                    await menuDB.clearDatabase();
-                    await menuDB.seedDatabase();
-                    await loadDataFromDatabase();
-
-                    loadCategories();
-                    loadProducts();
-
-                    showNotification('Database ripristinato con successo');
-                } catch (error) {
-                    console.error('Errore reset database:', error);
-                    showNotification('Errore nel ripristino del database');
-                }
+                showNotification('Errore nel salvataggio');
             }
         }
 
@@ -805,92 +390,50 @@
         // GESTIONE CATEGORIE
         // ==========================================
 
-        function showCategoryManagementPanel() {
+        function showCategoryManagement() {
             hideAllPanels();
-            document.getElementById('categoryManagementPanel').classList.remove('hidden');
+            document.getElementById('categoryManagement').classList.remove('hidden');
         }
 
-        function hideCategoryManagementPanel() {
-            hideAllPanels();
-            document.getElementById('productTable').classList.remove('hidden');
-        }
-
-        function showAddCategoryForm() {
+        function showCategoryForm(mode) {
             hideAllPanels();
             document.getElementById('categoryForm').classList.remove('hidden');
+            
+            const modeConfig = {
+                add: { title: 'Aggiungi Categoria', submitText: 'Aggiungi', showSelect: false, btnClass: 'btn-primary' },
+                edit: { title: 'Modifica Categoria', submitText: 'Modifica', showSelect: true, btnClass: 'btn-primary' },
+                delete: { title: 'Elimina Categoria', submitText: 'Elimina', showSelect: true, btnClass: 'btn-danger' }
+            };
 
-            // Configura il form per aggiunta
-            document.getElementById('categoryFormMode').value = 'add';
-            document.getElementById('categoryFormTitle').textContent = 'Aggiungi Categoria';
-            document.getElementById('categorySubmitBtn').textContent = 'Aggiungi';
-            document.getElementById('categorySelectGroup').style.display = 'none';
+            const config = modeConfig[mode];
+            document.getElementById('categoryMode').value = mode;
+            document.getElementById('categoryFormTitle').textContent = config.title;
+            document.getElementById('categorySubmitBtn').textContent = config.submitText;
+            document.getElementById('categorySubmitBtn').className = `btn ${config.btnClass}`;
+            document.getElementById('categorySelect').style.display = config.showSelect ? 'block' : 'none';
 
             // Reset form
-            document.getElementById('originalCategoryId').value = '';
-            document.getElementById('categoryId').value = '';
-            document.getElementById('categoryName').value = '';
-            document.getElementById('categoryEmoji').value = '';
-            document.getElementById('categoryId').disabled = false;
-        }
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryMode').value = mode;
 
-        function showEditCategoryForm() {
-            hideAllPanels();
-            document.getElementById('categoryForm').classList.remove('hidden');
+            // Configure fields
+            const fields = ['categoryId', 'categoryName', 'categoryEmoji'];
+            fields.forEach(field => {
+                document.getElementById(field).disabled = mode === 'delete';
+            });
 
-            // Configura il form per modifica
-            document.getElementById('categoryFormMode').value = 'edit';
-            document.getElementById('categoryFormTitle').textContent = 'Modifica Categoria';
-            document.getElementById('categorySubmitBtn').textContent = 'Modifica';
-            document.getElementById('categorySelectGroup').style.display = 'block';
-
-            // Popola il select delle categorie
-            const categorySelect = document.getElementById('categoryToEdit');
-            categorySelect.innerHTML = currentCategories.map(category => `
-        <option value="${category.id}">${category.emoji} ${category.name}</option>
-    `).join('');
-
-            // Carica i dati della prima categoria
-            if (currentCategories.length > 0) {
-                loadCategoryForEdit(currentCategories[0].id);
+            if (config.showSelect) {
+                const select = document.getElementById('categoryToEdit');
+                select.innerHTML = categories.map(cat => 
+                    `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
+                ).join('');
+                if (categories.length > 0) loadCategoryData();
             }
-
-            // Listener per il cambio di selezione
-            categorySelect.onchange = (e) => loadCategoryForEdit(e.target.value);
         }
 
-        function showDeleteCategoryForm() {
-            hideAllPanels();
-            document.getElementById('categoryForm').classList.remove('hidden');
-
-            // Configura il form per eliminazione
-            document.getElementById('categoryFormMode').value = 'delete';
-            document.getElementById('categoryFormTitle').textContent = 'Elimina Categoria';
-            document.getElementById('categorySubmitBtn').textContent = 'Elimina';
-            document.getElementById('categorySubmitBtn').className = 'btn btn-danger';
-            document.getElementById('categorySelectGroup').style.display = 'block';
-
-            // Popola il select delle categorie
-            const categorySelect = document.getElementById('categoryToEdit');
-            categorySelect.innerHTML = currentCategories.map(category => `
-        <option value="${category.id}">${category.emoji} ${category.name}</option>
-    `).join('');
-
-            // Carica i dati della prima categoria
-            if (currentCategories.length > 0) {
-                loadCategoryForEdit(currentCategories[0].id);
-            }
-
-            // Disabilita i campi per la modalità eliminazione
-            document.getElementById('categoryId').disabled = true;
-            document.getElementById('categoryName').disabled = true;
-            document.getElementById('categoryEmoji').disabled = true;
-
-            // Listener per il cambio di selezione
-            categorySelect.onchange = (e) => loadCategoryForEdit(e.target.value);
-        }
-
-        function loadCategoryForEdit(categoryId) {
-            const category = currentCategories.find(c => c.id === categoryId);
+        function loadCategoryData() {
+            const selectedId = document.getElementById('categoryToEdit').value;
+            const category = categories.find(c => c.id === selectedId);
             if (category) {
                 document.getElementById('originalCategoryId').value = category.id;
                 document.getElementById('categoryId').value = category.id;
@@ -899,21 +442,10 @@
             }
         }
 
-        function hideCategoryForm() {
-            hideAllPanels();
-            document.getElementById('categoryManagementPanel').classList.remove('hidden');
-
-            // Reset form styling
-            document.getElementById('categorySubmitBtn').className = 'btn btn-primary';
-            document.getElementById('categoryId').disabled = false;
-            document.getElementById('categoryName').disabled = false;
-            document.getElementById('categoryEmoji').disabled = false;
-        }
-
-        async function handleCategorySubmit(event) {
+        async function saveCategory(event) {
             event.preventDefault();
-
-            const mode = document.getElementById('categoryFormMode').value;
+            
+            const mode = document.getElementById('categoryMode').value;
             const categoryData = {
                 id: document.getElementById('categoryId').value.toLowerCase().replace(/\s+/g, '-'),
                 name: document.getElementById('categoryName').value,
@@ -922,87 +454,137 @@
 
             try {
                 if (mode === 'add') {
-                    // Verifica che l'ID non esista già
-                    const existingCategory = currentCategories.find(c => c.id === categoryData.id);
-                    if (existingCategory) {
-                        showNotification('Errore: ID categoria già esistente');
+                    if (categories.find(c => c.id === categoryData.id)) {
+                        showNotification('ID categoria già esistente');
                         return;
                     }
-
                     await menuDB.addCategory(categoryData);
-                    showNotification('Categoria aggiunta con successo');
+                    showNotification('Categoria aggiunta');
 
                 } else if (mode === 'edit') {
                     const originalId = document.getElementById('originalCategoryId').value;
-
-                    // Se l'ID è cambiato, verifica che il nuovo ID non esista già
+                    
                     if (categoryData.id !== originalId) {
-                        const existingCategory = currentCategories.find(c => c.id === categoryData.id);
-                        if (existingCategory) {
-                            showNotification('Errore: ID categoria già esistente');
+                        if (categories.find(c => c.id === categoryData.id)) {
+                            showNotification('ID categoria già esistente');
                             return;
                         }
-
-                        // Elimina la vecchia categoria e aggiunge la nuova
+                        
                         await menuDB.deleteCategory(originalId);
                         await menuDB.addCategory(categoryData);
-
-                        // Aggiorna tutti i prodotti che usano la vecchia categoria
-                        const productsToUpdate = currentProducts.filter(p => p.category === originalId);
+                        
+                        // Update products
+                        const productsToUpdate = products.filter(p => p.category === originalId);
                         for (const product of productsToUpdate) {
                             await menuDB.updateProduct(product.id, { ...product, category: categoryData.id });
                         }
                     } else {
-                        // Solo aggiornamento nome/emoji
                         await menuDB.addCategory(categoryData);
                     }
-
-                    showNotification('Categoria modificata con successo');
+                    showNotification('Categoria modificata');
 
                 } else if (mode === 'delete') {
                     const categoryId = document.getElementById('originalCategoryId').value;
-
-                    // Verifica se ci sono prodotti che usano questa categoria
-                    const productsInCategory = currentProducts.filter(p => p.category === categoryId);
+                    const productsInCategory = products.filter(p => p.category === categoryId);
+                    
                     if (productsInCategory.length > 0) {
-                        const confirmDelete = confirm(`Attenzione: Ci sono ${productsInCategory.length} prodotti in questa categoria. Eliminarla cancellerà anche tutti i prodotti. Continuare?`);
-                        if (!confirmDelete) {
-                            return;
-                        }
-
-                        // Elimina tutti i prodotti della categoria
+                        const confirmDelete = confirm(`Ci sono ${productsInCategory.length} prodotti in questa categoria. Eliminarla cancellerà anche tutti i prodotti. Continuare?`);
+                        if (!confirmDelete) return;
+                        
                         for (const product of productsInCategory) {
                             await menuDB.deleteProduct(product.id);
                         }
                     }
-
+                    
                     await menuDB.deleteCategory(categoryId);
-                    showNotification('Categoria eliminata con successo');
+                    showNotification('Categoria eliminata');
                 }
 
-                // Ricarica i dati e aggiorna l'interfaccia
-                await loadDataFromDatabase();
-                loadCategories();
-                hideCategoryForm();
-                showCategoryManagementPanel();
-
+                await loadData();
+                renderCategories();
+                showCategoryManagement();
             } catch (error) {
-                console.error('Errore gestione categoria:', error);
                 showNotification('Errore: ' + error.message);
             }
         }
 
+        // ==========================================
+        // GESTIONE QR CODE
+        // ==========================================
+
+        function showQRCode() {
+            hideAllPanels();
+            document.getElementById('qrCodePanel').classList.remove('hidden');
+            generateQRCode();
+        }
+
+        function generateQRCode() {
+            const container = document.getElementById('qrCodeContainer');
+            container.innerHTML = '';
+
+            const img = document.createElement('img');
+            img.src = './img/QRMenu.png';
+            img.alt = 'QR Code Menu BiblioCafè';
+            img.style.cssText = 'width: 300px; height: 300px; border: 2px solid var(--primary-color); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow);';
+            
+            img.onerror = () => {
+                container.innerHTML = `
+                    <div style="width: 300px; height: 300px; border: 2px dashed var(--primary-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-color); text-align: center; font-size: 0.9rem;">
+                        <div>📱<br>Immagine QR Code<br>non trovata</div>
+                    </div>
+                `;
+                showNotification('Immagine QR Code non trovata');
+            };
+
+            container.appendChild(img);
+        }
+
+        function printQRCode() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>QR Code Menu - BiblioCafè</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; padding: 2rem; }
+                        .qr-container { border: 2px solid #0c4840; border-radius: 12px; padding: 2rem; margin: 2rem auto; max-width: 400px; }
+                        h1 { color: #0c4840; margin-bottom: 1rem; }
+                        .qr-image { max-width: 100%; height: auto; border-radius: 8px; }
+                        .instructions { margin-top: 1.5rem; color: #666; font-size: 0.9rem; }
+                    </style>
+                </head>
+                <body>
+                    <div class="qr-container">
+                        <h1>BiblioCafè</h1>
+                        <h2>Menu Digitale</h2>
+                        <img src="./img/QRMenu.png" alt="QR Code Menu" class="qr-image">
+                        <div class="instructions">
+                            Inquadra il QR Code con la fotocamera del tuo smartphone<br>
+                            per accedere al menu digitale
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+            
+            showNotification('QR Code inviato alla stampante');
+        }
 
         // ==========================================
-        // INIZIALIZZAZIONE AL CARICAMENTO PAGINA
+        // INIZIALIZZAZIONE
         // ==========================================
 
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('BiblioCafè Admin Panel caricato con database IndexedDB');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('BiblioCafè Admin Panel caricato');
         });
     </script>
-
-
 </body>
 
 </html>
