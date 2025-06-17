@@ -1,114 +1,171 @@
+import { createClient } from '@supabase/supabase-js'
 // ==========================================
-// DATABASE MANAGER - IndexedDB
+// DATABASE MANAGER - SUPABASE CLOUD
 // ==========================================
 
 class MenuDatabase {
     constructor() {
-        this.dbName = 'BiblioCafeDB';
-        this.version = 2;
-        this.db = null;
+        // Configurazione Supabase
+        this.supabaseUrl = 'https://xvdgykomgxaawlycevwy.supabase.co';
+        // Carica la chiave dall'ambiente o dalla window se non disponibile
+        this.supabaseKey = typeof process !== 'undefined' && process.env
+            ? process.env.SUPABASE_KEY
+            : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZGd5a29tZ3hhYXdseWNldnd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNTI5ODQsImV4cCI6MjA2NTcyODk4NH0.SSeQzXMq9AdwsXX-Udr2Juhb3D_0LdE0RPC1-5kvKGY';
+
+        this.supabase = null;
+        this.initialized = false;
     }
 
-    // Inizializza il database
+    // Inizializza il database cloud
     async init() {
+        try {
+            // Se siamo in un browser, carica Supabase dinamicamente
+            if (typeof window !== 'undefined' && typeof createClient === 'undefined') {
+                await this.loadSupabase();
+            }
+
+            // Inizializza client Supabase
+            this.supabase = createClient(this.supabaseUrl, this.supabaseKey);
+
+            // Testa la connessione
+            const { data, error } = await this.supabase.from('categories').select('count');
+            if (error && error.code === '42P01') {
+                // Tabelle non esistono, mostra istruzioni
+                await this.createTables();
+            }
+
+            this.initialized = true;
+            console.log('Database cloud inizializzato con successo');
+            return true;
+        } catch (error) {
+            console.error('Errore inizializzazione database cloud:', error);
+            throw error;
+        }
+    }
+
+    // Carica la libreria Supabase dinamicamente per browser
+    async loadSupabase() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.version);
+            if (typeof window === 'undefined') {
+                resolve(); // Node.js environment
+                return;
+            }
 
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-                this.db = request.result;
-                resolve(this.db);
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.onload = () => {
+                // Assicurati che la libreria sia disponibile globalmente
+                window.supabase = window.supabase || {};
+                resolve();
             };
-
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-
-                // Crea le tabelle se non esistono
-                if (!db.objectStoreNames.contains('categories')) {
-                    const categoryStore = db.createObjectStore('categories', { keyPath: 'id' });
-                    categoryStore.createIndex('name', 'name', { unique: false });
-                }
-
-                if (!db.objectStoreNames.contains('products')) {
-                    const productStore = db.createObjectStore('products', { keyPath: 'id' });
-                    productStore.createIndex('category', 'category', { unique: false });
-                    productStore.createIndex('name', 'name', { unique: false });
-                }
-            };
+            script.onerror = reject;
+            document.head.appendChild(script);
         });
+    }
+
+    // Crea le tabelle nel database (da eseguire solo una volta)
+    async createTables() {
+        console.log('Le tabelle devono essere create nel pannello Supabase Dashboard');
+        console.log('SQL per categories:');
+        console.log(`
+            CREATE TABLE categories (
+                id VARCHAR PRIMARY KEY,
+                name VARCHAR NOT NULL,
+                emoji VARCHAR(2)
+            );
+        `);
+        console.log('SQL per products:');
+        console.log(`
+            CREATE TABLE products (
+                id SERIAL PRIMARY KEY,
+                category VARCHAR REFERENCES categories(id) ON DELETE CASCADE,
+                name VARCHAR NOT NULL,
+                description TEXT,
+                price DECIMAL(8,2) NOT NULL
+            );
+        `);
     }
 
     // Popola il database con i dati iniziali
     async seedDatabase() {
-        const categories = [
-            { id: "colazione", name: "Colazione", emoji: "🥐" },
-            { id: "snack", name: "Snack", emoji: "🥪" },
-            { id: "caffetteria", name: "Caffetteria", emoji: "☕" },
-            { id: "aperitivi", name: "Aperitivi", emoji: "🍹" },
-            { id: "cocktails", name: "Cocktails", emoji: "🍸" },
-            { id: "soft-drinks", name: "Soft Drinks", emoji: "🥤" }
-        ];
+        try {
+            // Verifica se i dati esistono già
+            const { data: existingCategories } = await this.supabase
+                .from('categories')
+                .select('*');
 
-        const products = [
-            // COLAZIONE
-            { id: 1, category: "colazione", name: "Cappuccino e Cornetto", description: "Cappuccino caldo e cornetto a scelta (vuoto, crema, cioccolato o marmellata)", price: 3 },
-            { id: 2, category: "colazione", name: "Brioche Siciliana", description: "Brioche col tuppo farcita con granita a scelta", price: 4 },
-            { id: 3, category: "colazione", name: "Cornetto Salato", description: "Cornetto con prosciutto cotto e formaggio", price: 3.8 },
-            { id: 4, category: "colazione", name: "Maritozzo", description: "Classico maritozzo con panna montata", price: 3.5 },
-            { id: 5, category: "colazione", name: "Toast Classico", description: "Prosciutto cotto e formaggio", price: 3.5 },
-            { id: 6, category: "colazione", name: "Pancake Stack", description: "Con sciroppo d'acero, frutti di bosco o Nutella", price: 6.5 },
-            { id: 7, category: "colazione", name: "Yogurt e Granola", description: "Yogurt greco con granola, miele e frutta fresca", price: 5 },
-            { id: 8, category: "colazione", name: "Uova Strapazzate", description: "Con toast e bacon croccante", price: 7.5 },
+            if (existingCategories && existingCategories.length === 0) {
+                const categories = [
+                    { id: "colazione", name: "Colazione", emoji: "🥐" },
+                    { id: "snack", name: "Snack", emoji: "🥪" },
+                    { id: "caffetteria", name: "Caffetteria", emoji: "☕" },
+                    { id: "aperitivi", name: "Aperitivi", emoji: "🍹" },
+                    { id: "cocktails", name: "Cocktails", emoji: "🍸" },
+                    { id: "soft-drinks", name: "Soft Drinks", emoji: "🥤" }
+                ];
 
-            // SNACK
-            { id: 9, category: "snack", name: "Focaccia Farcita", description: "Con prosciutto crudo, mozzarella e pomodorini", price: 6.5 },
-            { id: 10, category: "snack", name: "Club Sandwich", description: "Pollo, bacon, uovo, lattuga, pomodoro e maionese", price: 8 },
-            { id: 11, category: "snack", name: "Tagliere Misto", description: "Selezione di salumi e formaggi con focaccia", price: 12 },
+                const { error: categoriesError } = await this.supabase
+                    .from('categories')
+                    .insert(categories);
 
-            // CAFFETTERIA
-            { id: 12, category: "caffetteria", name: "Espresso", description: "Classico caffè espresso", price: 1.2 },
-            { id: 13, category: "caffetteria", name: "Cappuccino", description: "Con latte montato a vapore", price: 1.8 },
-            { id: 14, category: "caffetteria", name: "Caffè Americano", description: "Espresso allungato con acqua calda", price: 1.5 },
+                if (categoriesError) throw categoriesError;
 
-            // APERITIVI
-            { id: 15, category: "aperitivi", name: "Spritz Aperol", description: "Prosecco, Aperol e soda", price: 7 },
-            { id: 16, category: "aperitivi", name: "Spritz Campari", description: "Prosecco, Campari e soda", price: 7 },
-            { id: 17, category: "aperitivi", name: "Spritz Hugo", description: "Prosecco, sciroppo di sambuco, menta e soda", price: 7 },
-            { id: 18, category: "aperitivi", name: "Americano", description: "Campari, Vermouth rosso e soda", price: 7 },
-            { id: 19, category: "aperitivi", name: "Crodino", description: "Analcolico amaro", price: 3.5 },
-            { id: 20, category: "aperitivi", name: "San Bitter", description: "Analcolico rosso", price: 3.5 },
+                const products = [
+                    // COLAZIONE
+                    { category: "colazione", name: "Cappuccino e Cornetto", description: "Cappuccino caldo e cornetto a scelta (vuoto, crema, cioccolato o marmellata)", price: 3 },
+                    { category: "colazione", name: "Brioche Siciliana", description: "Brioche col tuppo farcita con granita a scelta", price: 4 },
+                    { category: "colazione", name: "Cornetto Salato", description: "Cornetto con prosciutto cotto e formaggio", price: 3.8 },
+                    { category: "colazione", name: "Maritozzo", description: "Classico maritozzo con panna montata", price: 3.5 },
+                    { category: "colazione", name: "Toast Classico", description: "Prosciutto cotto e formaggio", price: 3.5 },
+                    { category: "colazione", name: "Pancake Stack", description: "Con sciroppo d'acero, frutti di bosco o Nutella", price: 6.5 },
+                    { category: "colazione", name: "Yogurt e Granola", description: "Yogurt greco con granola, miele e frutta fresca", price: 5 },
+                    { category: "colazione", name: "Uova Strapazzate", description: "Con toast e bacon croccante", price: 7.5 },
 
-            // COCKTAILS
-            { id: 21, category: "cocktails", name: "Negroni", description: "Gin, Vermouth rosso e Campari", price: 8 },
-            { id: 22, category: "cocktails", name: "Negroni Sbagliato", description: "Prosecco, Vermouth rosso e Campari", price: 8 },
-            { id: 23, category: "cocktails", name: "Moscow Mule", description: "Vodka, ginger beer e lime", price: 8 },
-            { id: 24, category: "cocktails", name: "Gin Tonic", description: "Gin premium a scelta e tonica", price: 8 },
-            { id: 25, category: "cocktails", name: "Mojito", description: "Rum bianco, lime, menta, zucchero e soda", price: 8 },
-            { id: 26, category: "cocktails", name: "Martini Cocktail", description: "Gin o Vodka e Vermouth dry", price: 8 },
-            { id: 27, category: "cocktails", name: "Old Fashioned", description: "Bourbon, zucchero e bitter", price: 9 },
-            { id: 28, category: "cocktails", name: "Margarita", description: "Tequila, Triple Sec e lime", price: 8 },
+                    // SNACK
+                    { category: "snack", name: "Focaccia Farcita", description: "Con prosciutto crudo, mozzarella e pomodorini", price: 6.5 },
+                    { category: "snack", name: "Club Sandwich", description: "Pollo, bacon, uovo, lattuga, pomodoro e maionese", price: 8 },
+                    { category: "snack", name: "Tagliere Misto", description: "Selezione di salumi e formaggi con focaccia", price: 12 },
 
-            // SOFT DRINKS
-            { id: 29, category: "soft-drinks", name: "Spremuta d'Arancia", description: "Succo d'arancia fresco", price: 4 },
-            { id: 30, category: "soft-drinks", name: "Centrifugati", description: "Frutta e verdura fresca a scelta", price: 5 },
-            { id: 31, category: "soft-drinks", name: "Bibite in Lattina", description: "Coca Cola, Fanta, Sprite", price: 3 }
-        ];
+                    // CAFFETTERIA
+                    { category: "caffetteria", name: "Espresso", description: "Classico caffè espresso", price: 1.2 },
+                    { category: "caffetteria", name: "Cappuccino", description: "Con latte montato a vapore", price: 1.8 },
+                    { category: "caffetteria", name: "Caffè Americano", description: "Espresso allungato con acqua calda", price: 1.5 },
 
-        // Verifica se i dati esistono già
-        const existingCategories = await this.getAllCategories();
-        if (existingCategories.length === 0) {
-            // Popola le categorie
-            for (const category of categories) {
-                await this.addCategory(category);
+                    // APERITIVI
+                    { category: "aperitivi", name: "Spritz Aperol", description: "Prosecco, Aperol e soda", price: 7 },
+                    { category: "aperitivi", name: "Spritz Campari", description: "Prosecco, Campari e soda", price: 7 },
+                    { category: "aperitivi", name: "Spritz Hugo", description: "Prosecco, sciroppo di sambuco, menta e soda", price: 7 },
+                    { category: "aperitivi", name: "Americano", description: "Campari, Vermouth rosso e soda", price: 7 },
+                    { category: "aperitivi", name: "Crodino", description: "Analcolico amaro", price: 3.5 },
+                    { category: "aperitivi", name: "San Bitter", description: "Analcolico rosso", price: 3.5 },
+
+                    // COCKTAILS
+                    { category: "cocktails", name: "Negroni", description: "Gin, Vermouth rosso e Campari", price: 8 },
+                    { category: "cocktails", name: "Negroni Sbagliato", description: "Prosecco, Vermouth rosso e Campari", price: 8 },
+                    { category: "cocktails", name: "Moscow Mule", description: "Vodka, ginger beer e lime", price: 8 },
+                    { category: "cocktails", name: "Gin Tonic", description: "Gin premium a scelta e tonica", price: 8 },
+                    { category: "cocktails", name: "Mojito", description: "Rum bianco, lime, menta, zucchero e soda", price: 8 },
+                    { category: "cocktails", name: "Martini Cocktail", description: "Gin o Vodka e Vermouth dry", price: 8 },
+                    { category: "cocktails", name: "Old Fashioned", description: "Bourbon, zucchero e bitter", price: 9 },
+                    { category: "cocktails", name: "Margarita", description: "Tequila, Triple Sec e lime", price: 8 },
+
+                    // SOFT DRINKS
+                    { category: "soft-drinks", name: "Spremuta d'Arancia", description: "Succo d'arancia fresco", price: 4 },
+                    { category: "soft-drinks", name: "Centrifugati", description: "Frutta e verdura fresca a scelta", price: 5 },
+                    { category: "soft-drinks", name: "Bibite in Lattina", description: "Coca Cola, Fanta, Sprite", price: 3 }
+                ];
+
+                const { error: productsError } = await this.supabase
+                    .from('products')
+                    .insert(products);
+
+                if (productsError) throw productsError;
+
+                console.log('Database popolato con dati iniziali');
             }
-        }
-
-        const existingProducts = await this.getAllProducts();
-        if (existingProducts.length === 0) {
-            // Popola i prodotti
-            for (const product of products) {
-                await this.addProduct(product);
-            }
+        } catch (error) {
+            console.error('Errore nel popolamento database:', error);
+            throw error;
         }
     }
 
@@ -117,36 +174,48 @@ class MenuDatabase {
     // ==========================================
 
     async getAllCategories() {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['categories'], 'readonly');
-            const store = transaction.objectStore('categories');
-            const request = store.getAll();
+        try {
+            const { data, error } = await this.supabase
+                .from('categories')
+                .select('*')
+                .order('name');
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Errore caricamento categorie:', error);
+            throw error;
+        }
     }
 
     async addCategory(category) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['categories'], 'readwrite');
-            const store = transaction.objectStore('categories');
-            const request = store.put(category);
+        try {
+            const { data, error } = await this.supabase
+                .from('categories')
+                .insert([category])
+                .select();
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Errore aggiunta categoria:', error);
+            throw error;
+        }
     }
 
     async deleteCategory(id) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['categories'], 'readwrite');
-            const store = transaction.objectStore('categories');
-            const request = store.delete(id);
+        try {
+            const { error } = await this.supabase
+                .from('categories')
+                .delete()
+                .eq('id', id);
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Errore eliminazione categoria:', error);
+            throw error;
+        }
     }
 
     // ==========================================
@@ -154,99 +223,107 @@ class MenuDatabase {
     // ==========================================
 
     async getAllProducts() {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['products'], 'readonly');
-            const store = transaction.objectStore('products');
-            const request = store.getAll();
+        try {
+            const { data, error } = await this.supabase
+                .from('products')
+                .select('*')
+                .order('name');
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Errore caricamento prodotti:', error);
+            throw error;
+        }
     }
 
     async getProductsByCategory(categoryId) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['products'], 'readonly');
-            const store = transaction.objectStore('products');
-            const index = store.index('category');
-            const request = index.getAll(categoryId);
+        try {
+            const { data, error } = await this.supabase
+                .from('products')
+                .select('*')
+                .eq('category', categoryId)
+                .order('name');
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Errore caricamento prodotti per categoria:', error);
+            throw error;
+        }
     }
 
     async addProduct(product) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['products'], 'readwrite');
-            const store = transaction.objectStore('products');
-            const request = store.put(product);
+        try {
+            // Rimuovi l'ID se presente (sarà auto-generato)
+            const { id, ...productData } = product;
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            const { data, error } = await this.supabase
+                .from('products')
+                .insert([productData])
+                .select();
+
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Errore aggiunta prodotto:', error);
+            throw error;
+        }
     }
 
-    // NUOVO METODO: Aggiorna un prodotto esistente
     async updateProduct(id, updatedData) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Prima recupera il prodotto esistente
-                const existingProduct = await this.getProduct(id);
-                if (!existingProduct) {
-                    reject(new Error(`Prodotto con ID ${id} non trovato`));
-                    return;
-                }
+        try {
+            // Rimuovi l'ID dai dati di aggiornamento
+            const { id: _, ...dataToUpdate } = updatedData;
 
-                // Crea il prodotto aggiornato mantenendo l'ID originale
-                const updatedProduct = {
-                    ...existingProduct,
-                    ...updatedData,
-                    id: id // Assicurati che l'ID rimanga invariato
-                };
+            const { data, error } = await this.supabase
+                .from('products')
+                .update(dataToUpdate)
+                .eq('id', id)
+                .select();
 
-                // Salva il prodotto aggiornato
-                const transaction = this.db.transaction(['products'], 'readwrite');
-                const store = transaction.objectStore('products');
-                const request = store.put(updatedProduct);
-
-                request.onsuccess = () => {
-                    console.log('Prodotto aggiornato con successo:', updatedProduct);
-                    resolve(updatedProduct);
-                };
-                request.onerror = () => reject(request.error);
-
-            } catch (error) {
-                reject(error);
-            }
-        });
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Errore aggiornamento prodotto:', error);
+            throw error;
+        }
     }
 
     async getProduct(id) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['products'], 'readonly');
-            const store = transaction.objectStore('products');
-            const request = store.get(id);
+        try {
+            const { data, error } = await this.supabase
+                .from('products')
+                .select('*')
+                .eq('id', id)
+                .single();
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Errore caricamento prodotto:', error);
+            throw error;
+        }
     }
 
     async deleteProduct(id) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['products'], 'readwrite');
-            const store = transaction.objectStore('products');
-            const request = store.delete(id);
+        try {
+            const { error } = await this.supabase
+                .from('products')
+                .delete()
+                .eq('id', id);
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Errore eliminazione prodotto:', error);
+            throw error;
+        }
     }
 
     async getNextProductId() {
-        const products = await this.getAllProducts();
-        return products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        // Non necessario con database cloud (ID auto-incrementale)
+        return null;
     }
 
     // ==========================================
@@ -254,17 +331,148 @@ class MenuDatabase {
     // ==========================================
 
     async clearDatabase() {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['categories', 'products'], 'readwrite');
+        try {
+            // Elimina prima i prodotti (per rispettare le foreign key)
+            const { error: productsError } = await this.supabase
+                .from('products')
+                .delete()
+                .neq('id', 0); // Elimina tutti
 
-            const clearCategories = transaction.objectStore('categories').clear();
-            const clearProducts = transaction.objectStore('products').clear();
+            if (productsError) throw productsError;
 
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = () => reject(transaction.error);
-        });
+            // Poi elimina le categorie
+            const { error: categoriesError } = await this.supabase
+                .from('categories')
+                .delete()
+                .neq('id', ''); // Elimina tutti
+
+            if (categoriesError) throw categoriesError;
+
+            return true;
+        } catch (error) {
+            console.error('Errore pulizia database:', error);
+            throw error;
+        }
     }
+
+    // ==========================================
+    // FUNZIONI DI SINCRONIZZAZIONE REAL-TIME
+    // ==========================================
+
+    // Ascolta i cambiamenti in tempo reale
+    subscribeToChanges(callback) {
+        if (!this.supabase) {
+            console.warn('Supabase client non inizializzato');
+            return null;
+        }
+
+        try {
+            // Crea un canale unico per questa sessione
+            const channelName = `menu-changes-${Date.now()}`;
+
+            const subscription = this.supabase
+                .channel(channelName)
+                .on('postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'categories'
+                    },
+                    (payload) => {
+                        console.log('Categoria cambiata:', payload);
+                        if (callback) callback('categories', payload);
+                    }
+                )
+                .on('postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'products'
+                    },
+                    (payload) => {
+                        console.log('Prodotto cambiato:', payload);
+                        if (callback) callback('products', payload);
+                    }
+                )
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        console.log('Sincronizzazione real-time attivata');
+                    } else if (status === 'CHANNEL_ERROR') {
+                        console.error('Errore nel canale real-time');
+                    } else if (status === 'TIMED_OUT') {
+                        console.warn('Timeout connessione real-time');
+                    }
+                });
+
+            return subscription;
+        } catch (error) {
+            console.error('Errore nella creazione della subscription:', error);
+            return null;
+        }
+    }
+
+    // Interrompi l'ascolto dei cambiamenti
+    unsubscribeFromChanges(subscription) {
+        if (subscription && this.supabase) {
+            try {
+                this.supabase.removeChannel(subscription);
+                console.log('Subscription rimossa');
+            } catch (error) {
+                console.error('Errore nella rimozione della subscription:', error);
+            }
+        }
+    }
+
+    // Funzione di test per verificare la connessione real-time
+    async testRealtimeConnection() {
+        try {
+            const testCallback = (table, payload) => {
+                console.log('Test real-time funzionante:', table, payload);
+            };
+
+            const subscription = this.subscribeToChanges(testCallback);
+
+            // Aspetta un momento per stabilire la connessione
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Fai un piccolo cambiamento per testare
+            const testCategory = {
+                id: 'test-realtime',
+                name: 'Test Real-time',
+                emoji: '🧪'
+            };
+
+            await this.addCategory(testCategory);
+
+            // Aspetta per vedere se il callback viene chiamato
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Pulisci il test
+            await this.deleteCategory('test-realtime');
+            this.unsubscribeFromChanges(subscription);
+
+            return true;
+        } catch (error) {
+            console.error('Test real-time fallito:', error);
+            return false;
+        }
+    }
+}
+
+// Esporta la classe e crea un'istanza globale
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MenuDatabase;
+} else {
+    // Browser environment
+    window.MenuDatabase = MenuDatabase;
 }
 
 // Istanza globale del database
 const menuDB = new MenuDatabase();
+
+// Esporta anche l'istanza
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports.menuDB = menuDB;
+} else {
+    window.menuDB = menuDB;
+}
