@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
-
 <body>
     <div class="page-wrapper">
         <header>
@@ -34,10 +32,6 @@
 
     <!-- Carica il database manager -->
     <script src="db.js"></script>
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-        window.createClient = createClient;
-    </script>
 
     <script>
         // ==========================================
@@ -65,7 +59,7 @@
                 // Genera la navigazione
                 const navContainer = document.getElementById(containerId);
                 navContainer.innerHTML = ''; // Pulisce il container
-
+                
                 categories.forEach(category => {
                     const button = document.createElement('button');
                     button.className = 'nav-button';
@@ -92,10 +86,10 @@
                     grid.className = 'menu-grid';
 
                     // Filtra i prodotti per categoria
-                    const categoryProducts = products.filter(product =>
+                    const categoryProducts = products.filter(product => 
                         product.category === category.id
                     );
-
+                    
                     categoryProducts.forEach(product => {
                         const item = document.createElement('div');
                         item.className = 'item';
@@ -115,7 +109,7 @@
                 function switchCategory(categoryId) {
                     const currentCategory = document.querySelector('.category.active');
                     const targetCategory = document.getElementById(categoryId);
-
+                    
                     if (currentCategory === targetCategory) return;
 
                     document.querySelectorAll('.category').forEach(cat => {
@@ -131,12 +125,12 @@
 
                 // Aggiungi event listeners ai bottoni
                 const buttons = document.querySelectorAll('.nav-button');
-
+                
                 buttons.forEach((button, index) => {
                     button.addEventListener('click', () => {
                         buttons.forEach(b => b.classList.remove('active'));
                         button.classList.add('active');
-
+                        
                         switchCategory(button.dataset.category);
                         currentCategoryIndex = index;
                     });
@@ -152,7 +146,7 @@
 
             } catch (error) {
                 console.error('Errore nel caricamento del menu:', error);
-
+                
                 // Fallback: mostra messaggio di errore
                 const mainContent = document.getElementById(mainContentId);
                 mainContent.innerHTML = `
@@ -164,47 +158,22 @@
             }
         }
 
-        // Variabile per subscription
-        let realtimeSubscription = null;
+        // ==========================================
+        // AVVIO DELL'APPLICAZIONE
+        // ==========================================
 
-        // Funzione per gestire i cambiamenti in tempo reale
-        function handleRealtimeChanges(table, payload) {
-            console.log('Cambiamento rilevato:', table, payload);
-
-            // Ricarica il menu quando ci sono cambiamenti
-            generateMenu('nav-container', 'main-content');
-        }
-
-        // Avvia la sincronizzazione real-time
-        async function startRealtimeSync() {
-            try {
-                if (realtimeSubscription) {
-                    menuDB.unsubscribeFromChanges(realtimeSubscription);
-                }
-
-                realtimeSubscription = menuDB.subscribeToChanges(handleRealtimeChanges);
-                console.log('Sincronizzazione real-time attivata');
-            } catch (error) {
-                console.error('Errore sincronizzazione real-time:', error);
-            }
-        }
-
-        // Modifica la funzione DOMContentLoaded esistente
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostra un messaggio di caricamento
             const mainContent = document.getElementById('main-content');
             mainContent.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: #666;">
-            <h2>Caricamento menu...</h2>
-        </div>
-    `;
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    <h2>Caricamento menu...</h2>
+                </div>
+            `;
 
             // Carica il menu dal database
-            generateMenu('nav-container', 'main-content').then(() => {
-                // Avvia la sincronizzazione real-time dopo il caricamento
-                startRealtimeSync();
-            });
+            generateMenu('nav-container', 'main-content');
         });
     </script>
 </body>
-
 </html>
