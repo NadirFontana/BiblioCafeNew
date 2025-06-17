@@ -992,6 +992,55 @@
             }
         }
 
+        // Variabile per subscription admin
+        let adminRealtimeSubscription = null;
+
+        // Funzione per gestire i cambiamenti in tempo reale nell'admin
+        function handleAdminRealtimeChanges(table, payload) {
+            console.log('Cambiamento rilevato nell\'admin:', table, payload);
+
+            // Ricarica i dati quando ci sono cambiamenti da altri dispositivi
+            loadDataFromDatabase().then(() => {
+                loadCategories();
+                loadProducts(currentCategoryFilter);
+                showNotification('Dati aggiornati da altro dispositivo');
+            });
+        }
+
+        // Avvia la sincronizzazione real-time per admin
+        async function startAdminRealtimeSync() {
+            try {
+                if (adminRealtimeSubscription) {
+                    menuDB.unsubscribeFromChanges(adminRealtimeSubscription);
+                }
+
+                adminRealtimeSubscription = menuDB.subscribeToChanges(handleAdminRealtimeChanges);
+                console.log('Sincronizzazione real-time admin attivata');
+            } catch (error) {
+                console.error('Errore sincronizzazione real-time admin:', error);
+            }
+        }
+
+        // Modifica la funzione initializeAdminPanel esistente
+        async function initializeAdminPanel() {
+            try {
+                await menuDB.init();
+                await menuDB.seedDatabase();
+                await loadDataFromDatabase();
+
+                loadCategories();
+                loadProducts();
+
+                // Avvia sincronizzazione real-time
+                await startAdminRealtimeSync();
+
+                console.log('Admin panel inizializzato con successo');
+                console.log(`Categorie: ${currentCategories.length}, Prodotti: ${currentProducts.length}`);
+            } catch (error) {
+                console.error('Errore inizializzazione admin panel:', error);
+                showNotification('Errore nel caricamento dei dati dal database');
+            }
+        }
 
         // ==========================================
         // INIZIALIZZAZIONE AL CARICAMENTO PAGINA
