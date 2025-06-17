@@ -162,11 +162,7 @@
     </div>
 
     <!-- Carica il database manager -->
-    <script type="module" src="db.js"></script>
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-        window.createClient = createClient;
-    </script>
+    <script src="db.js"></script>
     <!-- QR Code Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 
@@ -261,13 +257,10 @@
 
         async function loadDataFromDatabase() {
             try {
-                console.log('Caricamento dati da Supabase...');
                 currentCategories = await menuDB.getAllCategories();
                 currentProducts = await menuDB.getAllProducts();
-                console.log(`Caricati: ${currentCategories.length} categorie, ${currentProducts.length} prodotti`);
             } catch (error) {
-                console.error('Errore nel caricamento dati da Supabase:', error);
-                showNotification('Errore connessione database: ' + error.message);
+                console.error('Errore nel caricamento dati:', error);
                 throw error;
             }
         }
@@ -736,9 +729,14 @@
                     result = await menuDB.updateProduct(parseInt(productId), productData);
                     successMessage = 'Prodotto modificato con successo';
                 } else {
-                    // NUOVO PRODOTTO - RIMOSSA getNextProductId()
-                    console.log('Creazione nuovo prodotto:', productData);
-                    result = await menuDB.addProduct(productData); // Passa solo productData
+                    // NUOVO PRODOTTO
+                    const nextId = await menuDB.getNextProductId();
+                    const newProduct = {
+                        id: nextId,
+                        ...productData
+                    };
+                    console.log('Creazione nuovo prodotto:', newProduct);
+                    result = await menuDB.addProduct(newProduct);
                     successMessage = 'Prodotto aggiunto con successo';
                 }
 
@@ -747,7 +745,7 @@
 
                 // Chiudi il form e mostra la tabella aggiornata
                 hideProductForm();
-                loadProducts(currentCategoryFilter);
+                loadProducts(currentCategoryFilter); // Mantieni il filtro attuale
 
                 showNotification(successMessage);
                 console.log('Operazione completata:', result);
@@ -937,31 +935,25 @@
                 } else if (mode === 'edit') {
                     const originalId = document.getElementById('originalCategoryId').value;
 
-                    // Con Supabase, gestisci il cambio di ID diversamente
+                    // Se l'ID è cambiato, verifica che il nuovo ID non esista già
                     if (categoryData.id !== originalId) {
-                        // Verifica che il nuovo ID non esista già
                         const existingCategory = currentCategories.find(c => c.id === categoryData.id);
                         if (existingCategory) {
                             showNotification('Errore: ID categoria già esistente');
                             return;
                         }
 
-                        // MODIFICA: Con Supabase non puoi aggiornare la chiave primaria
-                        // Devi eliminare e ricreare
+                        // Elimina la vecchia categoria e aggiunge la nuova
+                        await menuDB.deleteCategory(originalId);
+                        await menuDB.addCategory(categoryData);
 
-                        // Prima aggiorna tutti i prodotti che usano la vecchia categoria
+                        // Aggiorna tutti i prodotti che usano la vecchia categoria
                         const productsToUpdate = currentProducts.filter(p => p.category === originalId);
                         for (const product of productsToUpdate) {
                             await menuDB.updateProduct(product.id, { ...product, category: categoryData.id });
                         }
-
-                        // Poi elimina la vecchia categoria e aggiungi la nuova
-                        await menuDB.deleteCategory(originalId);
-                        await menuDB.addCategory(categoryData);
                     } else {
-                        // MODIFICA: Con Supabase, per aggiornare solo nome/emoji, usa updateCategory se esiste
-                        // Oppure elimina e ricrea
-                        await menuDB.deleteCategory(originalId);
+                        // Solo aggiornamento nome/emoji
                         await menuDB.addCategory(categoryData);
                     }
 
@@ -1000,62 +992,6 @@
             }
         }
 
-        // Variabile per subscription admin
-        let adminRealtimeSubscription = null;
-
-        // Funzione per gestire i cambiamenti in tempo reale nell'admin
-        function handleAdminRealtimeChanges(table, payload) {
-            console.log('Cambiamento rilevato nell\'admin:', table, payload);
-
-            // Ricarica i dati quando ci sono cambiamenti da altri dispositivi
-            loadDataFromDatabase().then(() => {
-                loadCategories();
-                loadProducts(currentCategoryFilter);
-                showNotification('Dati aggiornati da altro dispositivo');
-            });
-        }
-
-        // Avvia la sincronizzazione real-time per admin
-        async function startAdminRealtimeSync() {
-            try {
-                if (adminRealtimeSubscription) {
-                    menuDB.unsubscribeFromChanges(adminRealtimeSubscription);
-                }
-
-                // NUOVO: Con Supabase, la subscription funziona diversamente
-                adminRealtimeSubscription = menuDB.subscribeToChanges(handleAdminRealtimeChanges);
-
-                if (adminRealtimeSubscription) {
-                    console.log('Sincronizzazione real-time admin attivata');
-                } else {
-                    console.warn('Sincronizzazione real-time non disponibile');
-                }
-            } catch (error) {
-                console.error('Errore sincronizzazione real-time admin:', error);
-                // Non bloccare l'app se real-time non funziona
-            }
-        }
-
-        // Modifica la funzione initializeAdminPanel esistente
-        async function initializeAdminPanel() {
-            try {
-                await menuDB.init();
-                await menuDB.seedDatabase();
-                await loadDataFromDatabase();
-
-                loadCategories();
-                loadProducts();
-
-                // Avvia sincronizzazione real-time
-                await startAdminRealtimeSync();
-
-                console.log('Admin panel inizializzato con successo');
-                console.log(`Categorie: ${currentCategories.length}, Prodotti: ${currentProducts.length}`);
-            } catch (error) {
-                console.error('Errore inizializzazione admin panel:', error);
-                showNotification('Errore nel caricamento dei dati dal database');
-            }
-        }
 
         // ==========================================
         // INIZIALIZZAZIONE AL CARICAMENTO PAGINA
@@ -1063,50 +999,6 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             console.log('BiblioCafè Admin Panel caricato con database IndexedDB');
-        });
-
-        async function initializeAdminPanel() {
-            try {
-                // NUOVO: Inizializza il database Supabase
-                await menuDB.init();
-                await menuDB.seedDatabase();
-
-                await loadDataFromDatabase();
-
-                loadCategories();
-                loadProducts();
-
-                // Avvia sincronizzazione real-time
-                await startAdminRealtimeSync();
-
-                console.log('Admin panel inizializzato con successo');
-                console.log(`Categorie: ${currentCategories.length}, Prodotti: ${currentProducts.length}`);
-            } catch (error) {
-                console.error('Errore inizializzazione admin panel:', error);
-                showNotification('Errore nel caricamento dei dati dal database: ' + error.message);
-            }
-        }
-
-        let isConnected = false;
-
-        async function checkDatabaseConnection() {
-            try {
-                await menuDB.getAllCategories();
-                isConnected = true;
-                return true;
-            } catch (error) {
-                isConnected = false;
-                console.error('Connessione database persa:', error);
-                showNotification('Connessione database persa. Ricarica la pagina.', 5000);
-                return false;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('BiblioCafè Admin Panel caricato con database Supabase');
-
-            // Verifica periodicamente la connessione
-            setInterval(checkDatabaseConnection, 30000); // Ogni 30 secondi
         });
     </script>
 
