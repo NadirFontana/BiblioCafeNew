@@ -33,14 +33,13 @@
     </footer>
 
     <!-- Carica il database manager -->
-    <script type="module" src="db.js"></script>
+    <script src="db.js"></script>
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
         window.createClient = createClient;
     </script>
 
     <script>
-        const menuDB = new MenuDatabase();
         // ==========================================
         // FUNZIONI PER GENERARE IL MENU DAL DATABASE
         // ==========================================
@@ -205,17 +204,6 @@
                 startRealtimeSync();
             });
         });
-        // Esportazioni per ES modules
-export { MenuDatabase, menuDB };
-
-// Compatibilità con CommonJS e browser globals
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { MenuDatabase, menuDB };
-} else {
-    // Browser environment
-    window.MenuDatabase = MenuDatabase;
-    window.menuDB = menuDB;
-}
     </script>
 </body>
 
