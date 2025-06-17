@@ -171,7 +171,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 
     <script>
-        const menuDB = new MenuDatabase();
         // ==========================================
         // DATABASE MANAGER E CREDENZIALI
         // ==========================================
@@ -1109,15 +1108,6 @@
             // Verifica periodicamente la connessione
             setInterval(checkDatabaseConnection, 30000); // Ogni 30 secondi
         });
-        export { MenuDatabase, menuDB };
-        // Compatibilità con CommonJS e browser globals
-        if (typeof module !== 'undefined' && module.exports) {
-            module.exports = { MenuDatabase, menuDB };
-        } else {
-            // Browser environment
-            window.MenuDatabase = MenuDatabase;
-            window.menuDB = menuDB;
-        }
     </script>
 
 
