@@ -56,7 +56,8 @@
                     <div id="productTable"></div>
 
                     <!-- QR Code Panel -->
-                    <div id="qrCodePanel" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
+                    <div id="qrCodePanel" class="hidden"
+                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
                         <h3 style="margin-bottom: 2rem; color: var(--primary-color);">QR Code Menu</h3>
                         <div id="qrCodeContainer" style="display: flex; justify-content: center; margin: 2rem 0;"></div>
                         <p style="color: var(--accent-color); font-size: 0.9rem; margin-top: 1rem;">
@@ -69,12 +70,17 @@
                     </div>
 
                     <!-- Category Management Panel -->
-                    <div id="categoryManagement" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
+                    <div id="categoryManagement" class="hidden"
+                        style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
                         <h3 style="margin-bottom: 2rem; color: var(--primary-color);">Gestione Categorie</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; margin: 0 auto;">
-                            <button onclick="showCategoryForm('add')" class="btn btn-primary">➕ Aggiungi Categoria</button>
-                            <button onclick="showCategoryForm('edit')" class="btn btn-primary">✏️ Modifica Categoria</button>
-                            <button onclick="showCategoryForm('delete')" class="btn btn-primary">🗑️ Elimina Categoria</button>
+                        <div
+                            style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; margin: 0 auto;">
+                            <button onclick="showCategoryForm('add')" class="btn btn-primary">➕ Aggiungi
+                                Categoria</button>
+                            <button onclick="showCategoryForm('edit')" class="btn btn-primary">✏️ Modifica
+                                Categoria</button>
+                            <button onclick="showCategoryForm('delete')" class="btn btn-primary">🗑️ Elimina
+                                Categoria</button>
                             <button onclick="showProducts()" class="btn btn-danger">⬅️ Indietro</button>
                         </div>
                     </div>
@@ -121,7 +127,8 @@
 
                             <div class="form-group">
                                 <label for="categoryId">ID Categoria</label>
-                                <input type="text" id="categoryId" class="form-control" required pattern="[a-z0-9-]+" title="Solo lettere minuscole, numeri e trattini">
+                                <input type="text" id="categoryId" class="form-control" required pattern="[a-z0-9-]+"
+                                    title="Solo lettere minuscole, numeri e trattini">
                             </div>
 
                             <div class="form-group">
@@ -136,7 +143,8 @@
 
                             <div style="display: flex; gap: 1rem;">
                                 <button type="submit" id="categorySubmitBtn" class="btn btn-primary">Salva</button>
-                                <button type="button" onclick="showCategoryManagement()" class="btn btn-danger">Annulla</button>
+                                <button type="button" onclick="showCategoryManagement()"
+                                    class="btn btn-danger">Annulla</button>
                             </div>
                         </form>
                     </div>
@@ -153,7 +161,7 @@
         // ==========================================
         // CONFIGURAZIONE E VARIABILI GLOBALI
         // ==========================================
-        
+
         const ADMIN_CREDENTIALS = {
             username: 'caffetteria',
             password: 'menu2024'
@@ -218,8 +226,6 @@
 
         async function initializeApp() {
             try {
-                await menuDB.init();
-                await menuDB.seedDatabase();
                 await loadData();
                 renderCategories();
                 showProducts();
@@ -230,8 +236,26 @@
         }
 
         async function loadData() {
-            categories = await menuDB.getAllCategories();
-            products = await menuDB.getAllProducts();
+            try {
+                const [catResponse, prodResponse] = await Promise.all([
+                    fetch('/api/categories'),
+                    fetch('/api/products')
+                ]);
+
+                const catData = await catResponse.json();
+                const prodData = await prodResponse.json();
+
+                categories = catData.categories || [];
+                products = prodData.products || [];
+            } catch (error) {
+                console.error('Errore caricamento dati:', error);
+                // Usa dati di fallback se le API non funzionano
+                categories = [
+                    { id: 'caffe', name: 'Caffè e Bevande Calde', emoji: '☕' },
+                    { id: 'dolci', name: 'Dolci e Pasticceria', emoji: '🧁' }
+                ];
+                products = [];
+            }
         }
 
         // ==========================================
@@ -252,7 +276,7 @@
             ];
 
             // Desktop sidebar
-            document.getElementById('categoryList').innerHTML = buttons.map(btn => 
+            document.getElementById('categoryList').innerHTML = buttons.map(btn =>
                 btn.replace('class="btn btn-primary"', 'class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;"')
             ).join('');
 
@@ -262,7 +286,7 @@
             ).join('');
 
             // Form select
-            document.getElementById('category').innerHTML = categories.map(cat => 
+            document.getElementById('category').innerHTML = categories.map(cat =>
                 `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
             ).join('');
         }
@@ -283,7 +307,7 @@
         }
 
         function renderProducts() {
-            const filteredProducts = currentFilter 
+            const filteredProducts = currentFilter
                 ? products.filter(p => p.category === currentFilter)
                 : products;
 
@@ -325,7 +349,7 @@
         function showProductForm(productId = null) {
             hideAllPanels();
             document.getElementById('productForm').classList.remove('hidden');
-            
+
             if (productId) {
                 const product = products.find(p => p.id === productId);
                 document.getElementById('productId').value = product.id;
@@ -340,14 +364,15 @@
         }
 
         async function editProduct(id) {
-            const product = await menuDB.getProduct(id);
             if (product) showProductForm(product.id);
         }
-
         async function deleteProduct(id) {
             if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
                 try {
-                    await menuDB.deleteProduct(id);
+                    const response = await fetch(`/api/products?id=${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Errore eliminazione');
                     await loadData();
                     showProducts();
                     showNotification('Prodotto eliminato');
@@ -359,7 +384,7 @@
 
         async function saveProduct(event) {
             event.preventDefault();
-            
+
             try {
                 const productId = document.getElementById('productId').value;
                 const productData = {
@@ -370,11 +395,20 @@
                 };
 
                 if (productId) {
-                    await menuDB.updateProduct(parseInt(productId), productData);
+                    const response = await fetch(`/api/products?id=${productId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+                    if (!response.ok) throw new Error('Errore aggiornamento');
                     showNotification('Prodotto modificato');
                 } else {
-                    const nextId = await menuDB.getNextProductId();
-                    await menuDB.addProduct({ id: nextId, ...productData });
+                    const response = await fetch('/api/products', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+                    if (!response.ok) throw new Error('Errore aggiunta');
                     showNotification('Prodotto aggiunto');
                 }
 
@@ -398,7 +432,7 @@
         function showCategoryForm(mode) {
             hideAllPanels();
             document.getElementById('categoryForm').classList.remove('hidden');
-            
+
             const modeConfig = {
                 add: { title: 'Aggiungi Categoria', submitText: 'Aggiungi', showSelect: false, btnClass: 'btn-primary' },
                 edit: { title: 'Modifica Categoria', submitText: 'Modifica', showSelect: true, btnClass: 'btn-primary' },
@@ -424,7 +458,7 @@
 
             if (config.showSelect) {
                 const select = document.getElementById('categoryToEdit');
-                select.innerHTML = categories.map(cat => 
+                select.innerHTML = categories.map(cat =>
                     `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
                 ).join('');
                 if (categories.length > 0) loadCategoryData();
@@ -444,7 +478,7 @@
 
         async function saveCategory(event) {
             event.preventDefault();
-            
+
             const mode = document.getElementById('categoryMode').value;
             const categoryData = {
                 id: document.getElementById('categoryId').value.toLowerCase().replace(/\s+/g, '-'),
@@ -458,45 +492,41 @@
                         showNotification('ID categoria già esistente');
                         return;
                     }
-                    await menuDB.addCategory(categoryData);
+                    const response = await fetch('/api/categories', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(categoryData)
+                    });
+                    if (!response.ok) throw new Error('Errore aggiunta categoria');
                     showNotification('Categoria aggiunta');
 
                 } else if (mode === 'edit') {
-                    const originalId = document.getElementById('originalCategoryId').value;
-                    
-                    if (categoryData.id !== originalId) {
-                        if (categories.find(c => c.id === categoryData.id)) {
-                            showNotification('ID categoria già esistente');
-                            return;
-                        }
-                        
-                        await menuDB.deleteCategory(originalId);
-                        await menuDB.addCategory(categoryData);
-                        
-                        // Update products
-                        const productsToUpdate = products.filter(p => p.category === originalId);
-                        for (const product of productsToUpdate) {
-                            await menuDB.updateProduct(product.id, { ...product, category: categoryData.id });
-                        }
-                    } else {
-                        await menuDB.addCategory(categoryData);
-                    }
+                    const response = await fetch('/api/categories', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(categoryData)
+                    });
+                    if (!response.ok) throw new Error('Errore modifica categoria');
                     showNotification('Categoria modificata');
 
                 } else if (mode === 'delete') {
                     const categoryId = document.getElementById('originalCategoryId').value;
                     const productsInCategory = products.filter(p => p.category === categoryId);
-                    
+
                     if (productsInCategory.length > 0) {
                         const confirmDelete = confirm(`Ci sono ${productsInCategory.length} prodotti in questa categoria. Eliminarla cancellerà anche tutti i prodotti. Continuare?`);
                         if (!confirmDelete) return;
-                        
+
+                        // Elimina prima i prodotti
                         for (const product of productsInCategory) {
-                            await menuDB.deleteProduct(product.id);
+                            await fetch(`/api/products?id=${product.id}`, { method: 'DELETE' });
                         }
                     }
-                    
-                    await menuDB.deleteCategory(categoryId);
+
+                    const response = await fetch(`/api/categories?id=${encodeURIComponent(categoryId)}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Errore eliminazione categoria');
                     showNotification('Categoria eliminata');
                 }
 
@@ -526,7 +556,7 @@
             img.src = './img/QRMenu.png';
             img.alt = 'QR Code Menu BiblioCafè';
             img.style.cssText = 'width: 300px; height: 300px; border: 2px solid var(--primary-color); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow);';
-            
+
             img.onerror = () => {
                 container.innerHTML = `
                     <div style="width: 300px; height: 300px; border: 2px dashed var(--primary-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-color); text-align: center; font-size: 0.9rem;">
@@ -567,13 +597,13 @@
                 </body>
                 </html>
             `);
-            
+
             printWindow.document.close();
             setTimeout(() => {
                 printWindow.print();
                 printWindow.close();
             }, 500);
-            
+
             showNotification('QR Code inviato alla stampante');
         }
 
