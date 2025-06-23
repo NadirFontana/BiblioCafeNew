@@ -1,10 +1,13 @@
 // ==========================================
-// PRODUCTS API - VERCEL EDGE FUNCTION
+// PRODUCTS API - VERCEL SERVERLESS FUNCTION
 // ==========================================
 
-// Storage in-memory (in produzione useresti un database)
-let products = [];
-let nextProductId = 1;
+// Importa i dati di seed
+import { SEED_PRODUCTS } from './seed.js';
+
+// Storage simulato - in produzione useresti un database
+let products = [...SEED_PRODUCTS];
+let nextProductId = SEED_PRODUCTS.length + 1;
 
 export default async function handler(req, res) {
     // CORS headers
@@ -15,6 +18,12 @@ export default async function handler(req, res) {
     // Handle preflight reqs
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
+    }
+
+    // Assicurati che i dati siano inizializzati
+    if (products.length === 0) {
+        products = [...SEED_PRODUCTS];
+        nextProductId = SEED_PRODUCTS.length + 1;
     }
 
     try {
@@ -39,7 +48,7 @@ export default async function handler(req, res) {
 async function handleGetProducts(req, res) {
     const { query } = req;
     
-    // Filter by category if reqed
+    // Filter by category if requested
     if (query.category) {
         const filteredProducts = products.filter(product => 
             product.category === decodeURIComponent(query.category)
@@ -51,8 +60,8 @@ async function handleGetProducts(req, res) {
     }
 
     // Get single product by ID
-    const productId = query.id || req.url.split('/').pop();
-    if (productId && productId !== 'products') {
+    const productId = query.id;
+    if (productId) {
         const product = products.find(p => p.id === parseInt(productId));
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
@@ -102,7 +111,7 @@ async function handleAddProduct(req, res) {
 
 async function handleUpdateProduct(req, res) {
     const { query } = req;
-    const productId = parseInt(query.id || req.url.split('/').pop());
+    const productId = parseInt(query.id);
 
     if (!productId) {
         return res.status(400).json({ error: 'Product ID is required' });
@@ -145,7 +154,7 @@ async function handleUpdateProduct(req, res) {
 
 async function handleDeleteProduct(req, res) {
     const { query } = req;
-    const productId = parseInt(query.id || req.url.split('/').pop());
+    const productId = parseInt(query.id);
 
     if (!productId) {
         return res.status(400).json({ error: 'Product ID is required' });
