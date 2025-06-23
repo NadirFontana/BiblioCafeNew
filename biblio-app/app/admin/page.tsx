@@ -133,20 +133,34 @@ export default function AdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSaveCategory = async (e: FormEvent) => {
+  };  const handleSaveCategory = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      const formData = new FormData(e.target as HTMLFormElement);
+      if (!editingCategory) {
+        showNotification('Errore: dati categoria mancanti');
+        return;
+      }
+
       const categoryData = {
-        id: formData.get('categoryId') as string,
-        name: formData.get('categoryName') as string,
-        emoji: formData.get('categoryEmoji') as string,
-        order_index: 0
+        id: editingCategory.id.trim().toLowerCase().replace(/\s+/g, '-'),
+        name: editingCategory.name.trim(),
+        emoji: editingCategory.emoji.trim(),
+        order_index: categories.length
       };
+
+      // Validazione
+      if (!categoryData.id || !categoryData.name || !categoryData.emoji) {
+        showNotification('Errore: tutti i campi sono obbligatori');
+        return;
+      }
+
+      // Controlla se l'ID esiste già (solo per nuove categorie)
+      if (categoryFormMode === 'add' && categories.some(cat => cat.id === categoryData.id)) {
+        showNotification('Errore: ID categoria già esistente');
+        return;
+      }
       
       if (categoryFormMode === 'add') {
         await categoriesApi.create(categoryData);
@@ -161,6 +175,7 @@ export default function AdminPage() {
       
       await loadData(); // Ricarica i dati
       setCurrentView('categoryManagement');
+      setEditingCategory(null);
       
     } catch (err) {
       console.error('Errore nell\'operazione sulla categoria:', err);
@@ -507,11 +522,10 @@ export default function AdminPage() {
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <button
+              <div className="space-y-4">                <button
                   onClick={() => {
                     setCategoryFormMode('add');
-                    setEditingCategory(null);
+                    setEditingCategory({ id: '', name: '', emoji: '', order_index: 0 });
                     setCurrentView('categoryForm');
                   }}
                   className="w-full bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
@@ -548,9 +562,7 @@ export default function AdminPage() {
                 </button>
               </div>
             </div>
-          )}
-
-          {/* Category Form */}
+          )}          {/* Category Form */}
           {currentView === 'categoryForm' && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-2xl">
               <h3 className="text-xl font-semibold text-slate-800 mb-6">
@@ -562,14 +574,15 @@ export default function AdminPage() {
                   <div>
                     <label htmlFor="categoryToEdit" className="block text-sm font-medium text-slate-700 mb-2">
                       Seleziona Categoria
-                    </label>                    <select
+                    </label>
+                    <select
                       id="categoryToEdit"
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 bg-white"
                       onChange={(e) => {
                         const cat = categories.find(c => c.id === e.target.value);
                         setEditingCategory(cat || null);
                       }}
-                      defaultValue={editingCategory?.id || ''}
+                      value={editingCategory?.id || ''}
                     >
                       {categories.map(cat => (
                         <option key={cat.id} value={cat.id}>
@@ -579,48 +592,69 @@ export default function AdminPage() {
                     </select>
                   </div>
                 )}
-                
-                <div>
+                  <div>
                   <label htmlFor="categoryId" className="block text-sm font-medium text-slate-700 mb-2">
                     ID Categoria
-                  </label>                  <input
+                    <span className="text-xs text-slate-500 ml-2">(solo lettere minuscole, numeri e trattini)</span>
+                  </label>
+                  <input
                     type="text"
+                    name="categoryId"
                     id="categoryId"
                     required
-                    disabled={categoryFormMode === 'delete'}
-                    defaultValue={editingCategory?.id || ''}
+                    disabled={categoryFormMode === 'delete' || categoryFormMode === 'edit'}
+                    value={editingCategory?.id || ''}
+                    onChange={(e) => {
+                      if (categoryFormMode === 'add') {
+                        setEditingCategory(prev => ({ ...prev, id: e.target.value } as Category));
+                      }
+                    }}
                     pattern="[a-z0-9-]+"
                     title="Solo lettere minuscole, numeri e trattini"
+                    placeholder="es: nuova-categoria"
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 text-slate-900 bg-white"
                   />
                 </div>
-                
-                <div>
+                  <div>
                   <label htmlFor="categoryName" className="block text-sm font-medium text-slate-700 mb-2">
                     Nome Categoria
-                  </label>                  <input
+                  </label>
+                  <input
                     type="text"
+                    name="categoryName"
                     id="categoryName"
                     required
                     disabled={categoryFormMode === 'delete'}
-                    defaultValue={editingCategory?.name || ''}
+                    value={editingCategory?.name || ''}
+                    onChange={(e) => {
+                      setEditingCategory(prev => ({ ...prev, name: e.target.value } as Category));
+                    }}
+                    placeholder="es: Nuova Categoria"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 text-slate-900 bg-white"
+                  />
+                </div>
+                  <div>
+                  <label htmlFor="categoryEmoji" className="block text-sm font-medium text-slate-700 mb-2">
+                    Emoji
+                    <span className="text-xs text-slate-500 ml-2">(1-2 caratteri emoji)</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="categoryEmoji"
+                    id="categoryEmoji"
+                    required
+                    disabled={categoryFormMode === 'delete'}
+                    value={editingCategory?.emoji || ''}
+                    onChange={(e) => {
+                      setEditingCategory(prev => ({ ...prev, emoji: e.target.value } as Category));
+                    }}
+                    maxLength={2}
+                    placeholder="🍕"
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 text-slate-900 bg-white"
                   />
                 </div>
                 
-                <div>
-                  <label htmlFor="categoryEmoji" className="block text-sm font-medium text-slate-700 mb-2">
-                    Emoji
-                  </label>                  <input
-                    type="text"
-                    id="categoryEmoji"
-                    required
-                    disabled={categoryFormMode === 'delete'}
-                    defaultValue={editingCategory?.emoji || ''}
-                    maxLength={2}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 text-slate-900 bg-white"
-                  />
-                </div>                <div className="flex gap-4">
+                <div className="flex gap-4">
                   <button
                     type="submit"
                     disabled={isLoading}
