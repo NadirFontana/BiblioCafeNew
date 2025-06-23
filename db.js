@@ -1,66 +1,34 @@
 // ==========================================
-// DATABASE MANAGER - SUPABASE
+// DATABASE MANAGER - VERCEL EDGE FUNCTIONS
 // ==========================================
 
 class MenuDatabase {
     constructor() {
-        // Carica la configurazione dal file config.js
-        const config = window.SUPABASE_CONFIG || {};
-        
-        this.SUPABASE_URL = config.url || 'https://xvdgykomgxaawlycevwy.supabase.co';
-        this.SUPABASE_ANON_KEY = config.anonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZGd5a29tZ3hhYXdseWNldnd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNTI5ODQsImV4cCI6MjA2NTcyODk4NH0.SSeQzXMq9AdwsXX-Udr2Juhb3D_0LdE0RPC1-5kvKGYs';
-        this.SUPABASE_OPTIONS = config.options || {};
-        
-        this.supabase = null;
+        // Base URL per le API (sarà automaticamente impostato da Vercel)
+        this.API_BASE = '/api';
         this.initialized = false;
     }
 
-    // Inizializza la connessione a Supabase
+    // Inizializza la connessione alle Edge Functions
     async init() {
         try {
-            // Carica Supabase dalla CDN se non è già caricato
-            if (typeof window.supabase === 'undefined') {
-                await this.loadSupabaseScript();
-            }
-
-            // Inizializza il client Supabase
-            this.supabase = window.supabase.createClient(
-                this.SUPABASE_URL, 
-                this.SUPABASE_ANON_KEY,
-                this.SUPABASE_OPTIONS
-            );
-            
             // Test della connessione
-            const { data, error } = await this.supabase.from('categories').select('count').limit(1);
+            const response = await fetch(`${this.API_BASE}/health`);
             
-            if (error && error.code !== 'PGRST116') { // PGRST116 = tabella vuota, va bene
-                throw new Error(`Errore connessione Supabase: ${error.message}`);
+            if (!response.ok) {
+                throw new Error(`API non disponibile: ${response.status}`);
             }
 
+            const data = await response.json();
+            console.log('✅ Connessione alle Edge Functions stabilita:', data.message);
+            
             this.initialized = true;
-            console.log('✅ Connessione a Supabase stabilita con successo');
             return true;
 
         } catch (error) {
-            console.error('❌ Errore inizializzazione Supabase:', error);
+            console.error('❌ Errore inizializzazione Edge Functions:', error);
             throw error;
         }
-    }
-
-    // Carica dinamicamente lo script di Supabase
-    async loadSupabaseScript() {
-        return new Promise((resolve, reject) => {
-            if (document.querySelector('script[src*="supabase"]')) {
-                resolve();
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js';
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('Impossibile caricare Supabase'));
-            document.head.appendChild(script);
-        });
     }
 
     // Verifica che il database sia inizializzato
@@ -74,97 +42,21 @@ class MenuDatabase {
     async seedDatabase() {
         this.checkInitialized();
 
-        const categories = [
-            { id: "colazione", name: "Colazione", emoji: "🥐" },
-            { id: "snack", name: "Snack", emoji: "🥪" },
-            { id: "caffetteria", name: "Caffetteria", emoji: "☕" },
-            { id: "aperitivi", name: "Aperitivi", emoji: "🍹" },
-            { id: "cocktails", name: "Cocktails", emoji: "🍸" },
-            { id: "soft-drinks", name: "Soft Drinks", emoji: "🥤" }
-        ];
-
-        const products = [
-            // COLAZIONE
-            { category: "colazione", name: "Cappuccino e Cornetto", description: "Cappuccino caldo e cornetto a scelta (vuoto, crema, cioccolato o marmellata)", price: 3.00 },
-            { category: "colazione", name: "Brioche Siciliana", description: "Brioche col tuppo farcita con granita a scelta", price: 4.00 },
-            { category: "colazione", name: "Cornetto Salato", description: "Cornetto con prosciutto cotto e formaggio", price: 3.80 },
-            { category: "colazione", name: "Maritozzo", description: "Classico maritozzo con panna montata", price: 3.50 },
-            { category: "colazione", name: "Toast Classico", description: "Prosciutto cotto e formaggio", price: 3.50 },
-            { category: "colazione", name: "Pancake Stack", description: "Con sciroppo d'acero, frutti di bosco o Nutella", price: 6.50 },
-            { category: "colazione", name: "Yogurt e Granola", description: "Yogurt greco con granola, miele e frutta fresca", price: 5.00 },
-            { category: "colazione", name: "Uova Strapazzate", description: "Con toast e bacon croccante", price: 7.50 },
-            
-            // SNACK
-            { category: "snack", name: "Focaccia Farcita", description: "Con prosciutto crudo, mozzarella e pomodorini", price: 6.50 },
-            { category: "snack", name: "Club Sandwich", description: "Pollo, bacon, uovo, lattuga, pomodoro e maionese", price: 8.00 },
-            { category: "snack", name: "Tagliere Misto", description: "Selezione di salumi e formaggi con focaccia", price: 12.00 },
-            
-            // CAFFETTERIA
-            { category: "caffetteria", name: "Espresso", description: "Classico caffè espresso", price: 1.20 },
-            { category: "caffetteria", name: "Cappuccino", description: "Con latte montato a vapore", price: 1.80 },
-            { category: "caffetteria", name: "Caffè Americano", description: "Espresso allungato con acqua calda", price: 1.50 },
-            
-            // APERITIVI
-            { category: "aperitivi", name: "Spritz Aperol", description: "Prosecco, Aperol e soda", price: 7.00 },
-            { category: "aperitivi", name: "Spritz Campari", description: "Prosecco, Campari e soda", price: 7.00 },
-            { category: "aperitivi", name: "Spritz Hugo", description: "Prosecco, sciroppo di sambuco, menta e soda", price: 7.00 },
-            { category: "aperitivi", name: "Americano", description: "Campari, Vermouth rosso e soda", price: 7.00 },
-            { category: "aperitivi", name: "Crodino", description: "Analcolico amaro", price: 3.50 },
-            { category: "aperitivi", name: "San Bitter", description: "Analcolico rosso", price: 3.50 },
-            
-            // COCKTAILS
-            { category: "cocktails", name: "Negroni", description: "Gin, Vermouth rosso e Campari", price: 8.00 },
-            { category: "cocktails", name: "Negroni Sbagliato", description: "Prosecco, Vermouth rosso e Campari", price: 8.00 },
-            { category: "cocktails", name: "Moscow Mule", description: "Vodka, ginger beer e lime", price: 8.00 },
-            { category: "cocktails", name: "Gin Tonic", description: "Gin premium a scelta e tonica", price: 8.00 },
-            { category: "cocktails", name: "Mojito", description: "Rum bianco, lime, menta, zucchero e soda", price: 8.00 },
-            { category: "cocktails", name: "Martini Cocktail", description: "Gin o Vodka e Vermouth dry", price: 8.00 },
-            { category: "cocktails", name: "Old Fashioned", description: "Bourbon, zucchero e bitter", price: 9.00 },
-            { category: "cocktails", name: "Margarita", description: "Tequila, Triple Sec e lime", price: 8.00 },
-            
-            // SOFT DRINKS
-            { category: "soft-drinks", name: "Spremuta d'Arancia", description: "Succo d'arancia fresco", price: 4.00 },
-            { category: "soft-drinks", name: "Centrifugati", description: "Frutta e verdura fresca a scelta", price: 5.00 },
-            { category: "soft-drinks", name: "Bibite in Lattina", description: "Coca Cola, Fanta, Sprite", price: 3.00 }
-        ];
-
         try {
-            // Verifica se ci sono già categorie
-            const { data: existingCategories, error: categoriesError } = await this.supabase
-                .from('categories')
-                .select('id')
-                .limit(1);
+            const response = await fetch(`${this.API_BASE}/seed`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
 
-            if (categoriesError) {
-                throw categoriesError;
+            if (!response.ok) {
+                throw new Error(`Errore seeding: ${response.status}`);
             }
 
-            // Se non ci sono categorie, popola il database
-            if (!existingCategories || existingCategories.length === 0) {
-                console.log('🌱 Popolamento database con dati iniziali...');
-
-                // Inserisci le categorie
-                const { error: categoryInsertError } = await this.supabase
-                    .from('categories')
-                    .insert(categories);
-
-                if (categoryInsertError) {
-                    throw categoryInsertError;
-                }
-
-                // Inserisci i prodotti
-                const { error: productInsertError } = await this.supabase
-                    .from('products')
-                    .insert(products);
-
-                if (productInsertError) {
-                    throw productInsertError;
-                }
-
-                console.log('✅ Database popolato con successo');
-            } else {
-                console.log('ℹ️ Database già popolato, salto il seeding');
-            }
+            const result = await response.json();
+            console.log('✅ Database popolato:', result.message);
+            return result;
 
         } catch (error) {
             console.error('❌ Errore durante il seeding del database:', error);
@@ -180,13 +72,14 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('categories')
-                .select('*')
-                .order('name');
+            const response = await fetch(`${this.API_BASE}/categories`);
+            
+            if (!response.ok) {
+                throw new Error(`Errore recupero categorie: ${response.status}`);
+            }
 
-            if (error) throw error;
-            return data || [];
+            const data = await response.json();
+            return data.categories || [];
 
         } catch (error) {
             console.error('Errore nel recupero delle categorie:', error);
@@ -198,14 +91,21 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('categories')
-                .insert([category])
-                .select()
-                .single();
+            const response = await fetch(`${this.API_BASE}/categories`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(category)
+            });
 
-            if (error) throw error;
-            return data;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || `Errore aggiunta categoria: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.category;
 
         } catch (error) {
             console.error('Errore nell\'aggiunta della categoria:', error);
@@ -217,13 +117,16 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('categories')
-                .delete()
-                .eq('id', id)
-                .select();
+            const response = await fetch(`${this.API_BASE}/categories/${encodeURIComponent(id)}`, {
+                method: 'DELETE'
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || `Errore eliminazione categoria: ${response.status}`);
+            }
+
+            const data = await response.json();
             return data;
 
         } catch (error) {
@@ -240,14 +143,14 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('products')
-                .select('*')
-                .order('category')
-                .order('name');
+            const response = await fetch(`${this.API_BASE}/products`);
+            
+            if (!response.ok) {
+                throw new Error(`Errore recupero prodotti: ${response.status}`);
+            }
 
-            if (error) throw error;
-            return data || [];
+            const data = await response.json();
+            return data.products || [];
 
         } catch (error) {
             console.error('Errore nel recupero dei prodotti:', error);
@@ -259,14 +162,14 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('products')
-                .select('*')
-                .eq('category', categoryId)
-                .order('name');
+            const response = await fetch(`${this.API_BASE}/products?category=${encodeURIComponent(categoryId)}`);
+            
+            if (!response.ok) {
+                throw new Error(`Errore recupero prodotti per categoria: ${response.status}`);
+            }
 
-            if (error) throw error;
-            return data || [];
+            const data = await response.json();
+            return data.products || [];
 
         } catch (error) {
             console.error('Errore nel recupero dei prodotti per categoria:', error);
@@ -278,17 +181,24 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            // Rimuovi l'ID se presente, dato che Supabase lo genera automaticamente
+            // Rimuovi l'ID se presente, verrà generato dal server
             const { id, ...productData } = product;
             
-            const { data, error } = await this.supabase
-                .from('products')
-                .insert([productData])
-                .select()
-                .single();
+            const response = await fetch(`${this.API_BASE}/products`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            });
 
-            if (error) throw error;
-            return data;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || `Errore aggiunta prodotto: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.product;
 
         } catch (error) {
             console.error('Errore nell\'aggiunta del prodotto:', error);
@@ -303,15 +213,21 @@ class MenuDatabase {
             // Rimuovi l'ID dai dati di aggiornamento
             const { id: _, ...dataToUpdate } = updatedData;
             
-            const { data, error } = await this.supabase
-                .from('products')
-                .update(dataToUpdate)
-                .eq('id', id)
-                .select()
-                .single();
+            const response = await fetch(`${this.API_BASE}/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToUpdate)
+            });
 
-            if (error) throw error;
-            return data;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || `Errore aggiornamento prodotto: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.product;
 
         } catch (error) {
             console.error('Errore nell\'aggiornamento del prodotto:', error);
@@ -323,20 +239,17 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('products')
-                .select('*')
-                .eq('id', id)
-                .single();
+            const response = await fetch(`${this.API_BASE}/products/${id}`);
 
-            if (error) {
-                if (error.code === 'PGRST116') {
+            if (!response.ok) {
+                if (response.status === 404) {
                     return null; // Prodotto non trovato
                 }
-                throw error;
+                throw new Error(`Errore recupero prodotto: ${response.status}`);
             }
             
-            return data;
+            const data = await response.json();
+            return data.product;
 
         } catch (error) {
             console.error('Errore nel recupero del prodotto:', error);
@@ -348,13 +261,16 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const { data, error } = await this.supabase
-                .from('products')
-                .delete()
-                .eq('id', id)
-                .select();
+            const response = await fetch(`${this.API_BASE}/products/${id}`, {
+                method: 'DELETE'
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || `Errore eliminazione prodotto: ${response.status}`);
+            }
+
+            const data = await response.json();
             return data;
 
         } catch (error) {
@@ -364,9 +280,8 @@ class MenuDatabase {
     }
 
     async getNextProductId() {
-        // Con Supabase e SERIAL, non è necessario generare manualmente l'ID
-        // Questo metodo è mantenuto per compatibilità ma non utilizzato
-        return Date.now(); // Fallback, ma non dovrebbe essere necessario
+        // Non necessario con le Edge Functions, l'ID viene generato dal server
+        return Date.now();
     }
 
     // ==========================================
@@ -377,23 +292,17 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            // Elimina prima i prodotti (per rispettare le foreign key)
-            const { error: productsError } = await this.supabase
-                .from('products')
-                .delete()
-                .neq('id', 0); // Elimina tutti i record
+            const response = await fetch(`${this.API_BASE}/clear`, {
+                method: 'POST'
+            });
 
-            if (productsError) throw productsError;
+            if (!response.ok) {
+                throw new Error(`Errore pulizia database: ${response.status}`);
+            }
 
-            // Poi elimina le categorie
-            const { error: categoriesError } = await this.supabase
-                .from('categories')
-                .delete()
-                .neq('id', ''); // Elimina tutti i record
-
-            if (categoriesError) throw categoriesError;
-
-            console.log('✅ Database pulito con successo');
+            const data = await response.json();
+            console.log('✅ Database pulito:', data.message);
+            return data;
 
         } catch (error) {
             console.error('❌ Errore durante la pulizia del database:', error);
@@ -409,14 +318,16 @@ class MenuDatabase {
         this.checkInitialized();
         
         try {
-            const [categoriesResult, productsResult] = await Promise.all([
-                this.supabase.from('categories').select('id', { count: 'exact' }),
-                this.supabase.from('products').select('id', { count: 'exact' })
-            ]);
+            const response = await fetch(`${this.API_BASE}/stats`);
+            
+            if (!response.ok) {
+                throw new Error(`Errore recupero statistiche: ${response.status}`);
+            }
 
+            const data = await response.json();
             return {
-                categories: categoriesResult.count || 0,
-                products: productsResult.count || 0,
+                categories: data.categories || 0,
+                products: data.products || 0,
                 connected: true,
                 timestamp: new Date().toISOString()
             };
