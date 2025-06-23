@@ -358,12 +358,14 @@
                 document.getElementById('description').value = product.description;
                 document.getElementById('price').value = product.price;
             } else {
-                document.getElementById('productForm').reset();
+                const form = document.getElementById('productForm').querySelector('form');
+                if (form) form.reset();
                 document.getElementById('productId').value = '';
             }
         }
 
         async function editProduct(id) {
+            const product = products.find(p => p.id === id);
             if (product) showProductForm(product.id);
         }
         async function deleteProduct(id) {
@@ -461,7 +463,11 @@
                 select.innerHTML = categories.map(cat =>
                     `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
                 ).join('');
-                if (categories.length > 0) loadCategoryData();
+                if (categories.length === 0) {
+                    showNotification('Errore: nessuna categoria disponibile');
+                    showProducts();
+                    return;
+                }
             }
         }
 
