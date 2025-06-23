@@ -1,5 +1,12 @@
-// Storage in-memory
-let categories = [];
+// ==========================================
+// CATEGORIES API - VERCEL SERVERLESS FUNCTION
+// ==========================================
+
+// Importa i dati di seed
+import { SEED_CATEGORIES } from './seed.js';
+
+// Storage simulato - in produzione useresti un database
+let categories = [...SEED_CATEGORIES];
 
 export default function handler(req, res) {
     // CORS headers
@@ -9,6 +16,11 @@ export default function handler(req, res) {
     
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
+    }
+
+    // Assicurati che i dati siano inizializzati
+    if (categories.length === 0) {
+        categories = [...SEED_CATEGORIES];
     }
 
     switch (req.method) {
@@ -45,7 +57,7 @@ export default function handler(req, res) {
             });
 
         case 'DELETE':
-            const categoryId = req.query.id;
+            const categoryId = req.query.id || req.url.split('/').pop();
             if (!categoryId) {
                 return res.status(400).json({ error: 'Category ID is required' });
             }
