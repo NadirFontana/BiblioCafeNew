@@ -1,22 +1,22 @@
 {
   "functions": {
     "api/health.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18"
     },
     "api/seed.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18"
     },
     "api/categories.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18"
     },
     "api/products.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18"
     },
     "api/stats.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18"
     },
     "api/clear.js": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@18"
     }
   },
   "headers": [
