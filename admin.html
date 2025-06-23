@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BiblioCafè - Admin Panel</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
+    <!-- Notification System -->
     <div id="notification" class="notification"></div>
 
     <!-- Login Form -->
     <div id="loginForm">
-        <h2 style="margin-bottom: 1.5rem;">Admin Login</h2>
+        <h2>Admin Login</h2>
         <form onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -26,102 +24,110 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%">Login</button>
+            <button type="submit" class="btn btn-primary">Login</button>
         </form>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Main Admin Panel -->
     <div id="adminPanel" class="hidden">
+        <!-- Header -->
         <header class="admin-header">
             <h1>BiblioCafè Admin Panel</h1>
             <button onclick="logout()" class="btn btn-danger">Logout</button>
         </header>
 
-        <!-- Mobile Categories -->
-        <div class="categories-mobile">
+        <!-- Mobile Navigation -->
+        <nav class="categories-mobile">
             <div class="categories-scroll" id="categoryListMobile"></div>
-        </div>
+        </nav>
 
+        <!-- Main Container -->
         <div class="admin-container">
             <div class="admin-grid">
-                <!-- Sidebar -->
+                <!-- Desktop Sidebar -->
                 <aside class="sidebar">
-                    <h3 style="margin-bottom: 1rem;">Categorie</h3>
+                    <h3>Categorie</h3>
                     <div id="categoryList"></div>
                 </aside>
 
-                <!-- Main Content -->
+                <!-- Main Content Area -->
                 <main class="main-content">
-                    <!-- Product Table -->
-                    <div id="productTable"></div>
+                    <!-- Products Table -->
+                    <section id="productTable"></section>
 
                     <!-- QR Code Panel -->
-                    <div id="qrCodePanel" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow); text-align: center;">
-                        <h3 style="margin-bottom: 2rem; color: var(--primary-color);">QR Code Menu</h3>
-                        <div id="qrCodeContainer" style="display: flex; justify-content: center; margin: 2rem 0;"></div>
-                        <p style="color: var(--accent-color); font-size: 0.9rem; margin-top: 1rem;">
+                    <section id="qrCodePanel" class="panel hidden">
+                        <h3>QR Code Menu</h3>
+                        <div id="qrCodeContainer" class="qr-container"></div>
+                        <p class="qr-info">
                             <strong>URL:</strong> Menu Digitale BiblioCafè
                         </p>
-                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <div class="panel-actions">
                             <button onclick="printQRCode()" class="btn btn-primary">🖨️ Stampa QR Code</button>
                             <button onclick="showProducts()" class="btn btn-danger">⬅️ Indietro</button>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Category Management Panel -->
-                    <div id="categoryManagement" class="hidden" style="padding: 2rem; background: var(--paper-color); border-radius: 12px; box-shadow: 0 2px 15px var(--shadow);">
-                        <h3 style="margin-bottom: 2rem; color: var(--primary-color);">Gestione Categorie</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 400px; margin: 0 auto;">
+                    <section id="categoryManagement" class="panel hidden">
+                        <h3>Gestione Categorie</h3>
+                        <div class="management-actions">
                             <button onclick="showCategoryForm('add')" class="btn btn-primary">➕ Aggiungi Categoria</button>
                             <button onclick="showCategoryForm('edit')" class="btn btn-primary">✏️ Modifica Categoria</button>
                             <button onclick="showCategoryForm('delete')" class="btn btn-primary">🗑️ Elimina Categoria</button>
                             <button onclick="showProducts()" class="btn btn-danger">⬅️ Indietro</button>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Product Form -->
-                    <div id="productForm" class="hidden">
-                        <h3 style="margin-bottom: 1.5rem;">Aggiungi/Modifica Prodotto</h3>
+                    <section id="productForm" class="panel hidden">
+                        <h3>Aggiungi/Modifica Prodotto</h3>
                         <form onsubmit="saveProduct(event)">
                             <input type="hidden" id="productId">
+                            
                             <div class="form-group">
                                 <label for="category">Categoria</label>
                                 <select id="category" class="form-control" required></select>
                             </div>
+                            
                             <div class="form-group">
                                 <label for="name">Nome</label>
                                 <input type="text" id="name" class="form-control" required>
                             </div>
+                            
                             <div class="form-group">
                                 <label for="description">Descrizione</label>
                                 <textarea id="description" class="form-control" rows="3" required></textarea>
                             </div>
+                            
                             <div class="form-group">
                                 <label for="price">Prezzo (€)</label>
                                 <input type="number" id="price" class="form-control" step="0.10" min="0" required>
                             </div>
-                            <div style="display: flex; gap: 1rem;">
+                            
+                            <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">Salva</button>
                                 <button type="button" onclick="showProducts()" class="btn btn-danger">Annulla</button>
                             </div>
                         </form>
-                    </div>
+                    </section>
 
                     <!-- Category Form -->
-                    <div id="categoryForm" class="hidden">
-                        <h3 id="categoryFormTitle" style="margin-bottom: 1.5rem;">Gestione Categoria</h3>
+                    <section id="categoryForm" class="panel hidden">
+                        <h3 id="categoryFormTitle">Gestione Categoria</h3>
                         <form onsubmit="saveCategory(event)">
                             <input type="hidden" id="categoryMode">
                             <input type="hidden" id="originalCategoryId">
 
-                            <div class="form-group" id="categorySelect" style="display: none;">
+                            <div class="form-group" id="categorySelect">
                                 <label for="categoryToEdit">Seleziona Categoria</label>
                                 <select id="categoryToEdit" class="form-control" onchange="loadCategoryData()"></select>
                             </div>
 
                             <div class="form-group">
                                 <label for="categoryId">ID Categoria</label>
-                                <input type="text" id="categoryId" class="form-control" required pattern="[a-z0-9-]+" title="Solo lettere minuscole, numeri e trattini">
+                                <input type="text" id="categoryId" class="form-control" required 
+                                       pattern="[a-z0-9-]+" title="Solo lettere minuscole, numeri e trattini">
                             </div>
 
                             <div class="form-group">
@@ -134,457 +140,595 @@
                                 <input type="text" id="categoryEmoji" class="form-control" maxlength="2" required>
                             </div>
 
-                            <div style="display: flex; gap: 1rem;">
+                            <div class="form-actions">
                                 <button type="submit" id="categorySubmitBtn" class="btn btn-primary">Salva</button>
                                 <button type="button" onclick="showCategoryManagement()" class="btn btn-danger">Annulla</button>
                             </div>
                         </form>
-                    </div>
+                    </section>
                 </main>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- External Scripts -->
     <script src="db.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
-
+    
+    <!-- Main Application Script -->
     <script>
         // ==========================================
-        // CONFIGURAZIONE E VARIABILI GLOBALI
+        // CONFIGURATION
         // ==========================================
         
-        const ADMIN_CREDENTIALS = {
-            username: 'caffetteria',
-            password: 'menu2024'
+        const CONFIG = {
+            ADMIN_CREDENTIALS: {
+                username: 'caffetteria',
+                password: 'menu2024'
+            },
+            NOTIFICATION_DURATION: 3000
         };
 
-        let categories = [];
-        let products = [];
-        let currentFilter = null;
-
         // ==========================================
-        // UTILITÀ
+        // STATE MANAGEMENT
         // ==========================================
+        
+        class AppState {
+            constructor() {
+                this.categories = [];
+                this.products = [];
+                this.currentFilter = null;
+                this.isLoggedIn = false;
+            }
 
-        function showNotification(message, duration = 3000) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => notification.style.display = 'none', duration);
+            async loadData() {
+                this.categories = await menuDB.getAllCategories();
+                this.products = await menuDB.getAllProducts();
+            }
+
+            getCategoryName(categoryId) {
+                const category = this.categories.find(c => c.id === categoryId);
+                return category ? `${category.emoji} ${category.name}` : categoryId;
+            }
         }
 
-        function hideAllPanels() {
-            ['productTable', 'qrCodePanel', 'categoryManagement', 'productForm', 'categoryForm'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-        }
-
-        function getCategoryName(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            return category ? `${category.emoji} ${category.name}` : categoryId;
-        }
+        const appState = new AppState();
 
         // ==========================================
-        // AUTENTICAZIONE
+        // UTILITY FUNCTIONS
         // ==========================================
+        
+        const Utils = {
+            showNotification(message, duration = CONFIG.NOTIFICATION_DURATION) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.style.display = 'block';
+                setTimeout(() => notification.style.display = 'none', duration);
+            },
 
-        function handleLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            hideAllPanels() {
+                const panels = ['productTable', 'qrCodePanel', 'categoryManagement', 'productForm', 'categoryForm'];
+                panels.forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+            },
 
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+            resetForm(formSelector) {
+                document.querySelector(formSelector).reset();
+            },
+
+            validateForm(formData) {
+                return Object.values(formData).every(value => 
+                    value !== null && value !== undefined && value !== ''
+                );
+            }
+        };
+
+        // ==========================================
+        // AUTHENTICATION MODULE
+        // ==========================================
+        
+        const Auth = {
+            handleLogin(event) {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (this.validateCredentials(username, password)) {
+                    this.showAdminPanel();
+                    App.initialize();
+                    Utils.showNotification('Login effettuato con successo');
+                } else {
+                    Utils.showNotification('Credenziali non valide');
+                }
+            },
+
+            validateCredentials(username, password) {
+                return username === CONFIG.ADMIN_CREDENTIALS.username && 
+                       password === CONFIG.ADMIN_CREDENTIALS.password;
+            },
+
+            showAdminPanel() {
                 document.getElementById('loginForm').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
-                initializeApp();
-                showNotification('Login effettuato con successo');
-            } else {
-                showNotification('Credenziali non valide');
+                appState.isLoggedIn = true;
+            },
+
+            logout() {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('adminPanel').classList.add('hidden');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                appState.isLoggedIn = false;
+                Utils.showNotification('Logout effettuato');
             }
-        }
-
-        function logout() {
-            document.getElementById('loginForm').classList.remove('hidden');
-            document.getElementById('adminPanel').classList.add('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            showNotification('Logout effettuato');
-        }
+        };
 
         // ==========================================
-        // INIZIALIZZAZIONE
+        // UI RENDERING MODULE
         // ==========================================
+        
+        const UI = {
+            renderCategories() {
+                const buttons = [
+                    ...appState.categories.map(cat => 
+                        `<button onclick="ProductManager.filterProducts('${cat.id}')" class="btn btn-primary">
+                            ${cat.emoji} ${cat.name}
+                        </button>`
+                    ),
+                    '<button onclick="ProductManager.showProducts()" class="btn btn-primary">📋 Tutti i Prodotti</button>',
+                    '<button onclick="ProductManager.showProductForm()" class="btn btn-primary">➕ Aggiungi Prodotto</button>',
+                    '<button onclick="CategoryManager.showCategoryManagement()" class="btn btn-primary">📂 Gestisci Categorie</button>',
+                    '<button onclick="QRCodeManager.showQRCode()" class="btn btn-primary">📱 QR Code</button>'
+                ];
 
-        async function initializeApp() {
-            try {
-                await menuDB.init();
-                await menuDB.seedDatabase();
-                await loadData();
-                renderCategories();
-                showProducts();
-            } catch (error) {
-                console.error('Errore inizializzazione:', error);
-                showNotification('Errore nel caricamento dei dati');
-            }
-        }
+                // Desktop sidebar
+                document.getElementById('categoryList').innerHTML = 
+                    buttons.map(btn => btn.replace('class="btn btn-primary"', 'class="btn btn-primary sidebar-btn')).join('');
 
-        async function loadData() {
-            categories = await menuDB.getAllCategories();
-            products = await menuDB.getAllProducts();
-        }
+                // Mobile navigation
+                document.getElementById('categoryListMobile').innerHTML = 
+                    buttons.map(btn => btn.replace('class="btn btn-primary"', 'class="nav-button"')).join('');
 
-        // ==========================================
-        // RENDERING CATEGORIE
-        // ==========================================
+                // Form select options
+                document.getElementById('category').innerHTML = 
+                    appState.categories.map(cat => `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`).join('');
+            },
 
-        function renderCategories() {
-            const buttons = [
-                ...categories.map(cat => `
-                    <button onclick="filterProducts('${cat.id}')" class="btn btn-primary">
-                        ${cat.emoji} ${cat.name}
-                    </button>
-                `),
-                '<button onclick="showProducts()" class="btn btn-primary">📋 Tutti i Prodotti</button>',
-                '<button onclick="showProductForm()" class="btn btn-primary">➕ Aggiungi Prodotto</button>',
-                '<button onclick="showCategoryManagement()" class="btn btn-primary">📂 Gestisci Categorie</button>',
-                '<button onclick="showQRCode()" class="btn btn-primary">📱 QR Code</button>'
-            ];
+            renderProducts() {
+                const filteredProducts = appState.currentFilter 
+                    ? appState.products.filter(p => p.category === appState.currentFilter)
+                    : appState.products;
 
-            // Desktop sidebar
-            document.getElementById('categoryList').innerHTML = buttons.map(btn => 
-                btn.replace('class="btn btn-primary"', 'class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;"')
-            ).join('');
+                const container = document.getElementById('productTable');
 
-            // Mobile scroll
-            document.getElementById('categoryListMobile').innerHTML = buttons.map(btn =>
-                btn.replace('class="btn btn-primary"', 'class="nav-button"')
-            ).join('');
+                if (filteredProducts.length === 0) {
+                    container.innerHTML = this.renderEmptyState();
+                    return;
+                }
 
-            // Form select
-            document.getElementById('category').innerHTML = categories.map(cat => 
-                `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
-            ).join('');
-        }
-
-        // ==========================================
-        // GESTIONE PRODOTTI
-        // ==========================================
-
-        function showProducts() {
-            hideAllPanels();
-            document.getElementById('productTable').classList.remove('hidden');
-            renderProducts();
-        }
-
-        function filterProducts(categoryId) {
-            currentFilter = categoryId;
-            showProducts();
-        }
-
-        function renderProducts() {
-            const filteredProducts = currentFilter 
-                ? products.filter(p => p.category === currentFilter)
-                : products;
-
-            const container = document.getElementById('productTable');
-
-            if (filteredProducts.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #666;">
-                        <h3>Nessun prodotto trovato</h3>
-                        <p>Non ci sono prodotti ${currentFilter ? 'in questa categoria' : 'nel database'}</p>
-                        <button onclick="showProductForm()" class="btn btn-primary">Aggiungi Prodotto</button>
+                    <div class="products-grid">
+                        ${filteredProducts.map(product => this.renderProductCard(product)).join('')}
                     </div>
                 `;
-                return;
-            }
+            },
 
-            container.innerHTML = `
-                <div class="products-grid">
-                    ${filteredProducts.map(product => `
-                        <div class="product-card">
-                            <div class="product-header">
-                                <h3 class="product-title">${product.name}</h3>
-                                <span class="product-category">${getCategoryName(product.category)}</span>
+            renderProductCard(product) {
+                return `
+                    <article class="product-card">
+                        <header class="product-header">
+                            <h3 class="product-title">${product.name}</h3>
+                            <span class="product-category">${appState.getCategoryName(product.category)}</span>
+                        </header>
+                        <p class="product-description">${product.description}</p>
+                        <footer class="product-footer">
+                            <span class="product-price">€${product.price.toFixed(2)}</span>
+                            <div class="product-actions">
+                                <button onclick="ProductManager.editProduct(${product.id})" class="btn btn-primary">Modifica</button>
+                                <button onclick="ProductManager.deleteProduct(${product.id})" class="btn btn-danger">Elimina</button>
                             </div>
-                            <p class="product-description">${product.description}</p>
-                            <div class="product-footer">
-                                <span class="product-price">€${product.price.toFixed(2)}</span>
-                                <div class="product-actions">
-                                    <button onclick="editProduct(${product.id})" class="btn btn-primary">Modifica</button>
-                                    <button onclick="deleteProduct(${product.id})" class="btn btn-danger">Elimina</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+                        </footer>
+                    </article>
+                `;
+            },
 
-        function showProductForm(productId = null) {
-            hideAllPanels();
-            document.getElementById('productForm').classList.remove('hidden');
-            
-            if (productId) {
-                const product = products.find(p => p.id === productId);
-                document.getElementById('productId').value = product.id;
-                document.getElementById('category').value = product.category;
-                document.getElementById('name').value = product.name;
-                document.getElementById('description').value = product.description;
-                document.getElementById('price').value = product.price;
-            } else {
-                document.getElementById('productForm').reset();
-                document.getElementById('productId').value = '';
+            renderEmptyState() {
+                return `
+                    <div class="empty-state">
+                        <h3>Nessun prodotto trovato</h3>
+                        <p>Non ci sono prodotti ${appState.currentFilter ? 'in questa categoria' : 'nel database'}</p>
+                        <button onclick="ProductManager.showProductForm()" class="btn btn-primary">Aggiungi Prodotto</button>
+                    </div>
+                `;
             }
-        }
+        };
 
-        async function editProduct(id) {
-            const product = await menuDB.getProduct(id);
-            if (product) showProductForm(product.id);
-        }
+        // ==========================================
+        // PRODUCT MANAGEMENT MODULE
+        // ==========================================
+        
+        const ProductManager = {
+            showProducts() {
+                Utils.hideAllPanels();
+                document.getElementById('productTable').classList.remove('hidden');
+                UI.renderProducts();
+            },
 
-        async function deleteProduct(id) {
-            if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
-                try {
-                    await menuDB.deleteProduct(id);
-                    await loadData();
-                    showProducts();
-                    showNotification('Prodotto eliminato');
-                } catch (error) {
-                    showNotification('Errore nell\'eliminazione');
+            filterProducts(categoryId) {
+                appState.currentFilter = categoryId;
+                this.showProducts();
+            },
+
+            showProductForm(productId = null) {
+                Utils.hideAllPanels();
+                document.getElementById('productForm').classList.remove('hidden');
+                
+                Utils.resetForm('#productForm form');
+                
+                if (productId) {
+                    this.loadProductData(productId);
+                } else {
+                    document.getElementById('productId').value = '';
                 }
-            }
-        }
+            },
 
-        async function saveProduct(event) {
-            event.preventDefault();
-            
-            try {
-                const productId = document.getElementById('productId').value;
-                const productData = {
+            loadProductData(productId) {
+                const product = appState.products.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('category').value = product.category;
+                    document.getElementById('name').value = product.name;
+                    document.getElementById('description').value = product.description;
+                    document.getElementById('price').value = product.price;
+                }
+            },
+
+            async editProduct(id) {
+                try {
+                    const product = appState.products.find(p => p.id === id);
+                    if (product) {
+                        this.showProductForm(product.id);
+                    } else {
+                        Utils.showNotification('Prodotto non trovato');
+                    }
+                } catch (error) {
+                    Utils.showNotification('Errore nel caricamento del prodotto');
+                    console.error('Errore editProduct:', error);
+                }
+            },
+
+            async deleteProduct(id) {
+                if (confirm('Sei sicuro di voler eliminare questo prodotto?')) {
+                    try {
+                        await menuDB.deleteProduct(id);
+                        await appState.loadData();
+                        this.showProducts();
+                        Utils.showNotification('Prodotto eliminato');
+                    } catch (error) {
+                        Utils.showNotification('Errore nell\'eliminazione');
+                        console.error('Errore deleteProduct:', error);
+                    }
+                }
+            },
+
+            async saveProduct(event) {
+                event.preventDefault();
+                
+                try {
+                    const productData = this.getProductFormData();
+                    const productId = document.getElementById('productId').value;
+
+                    if (productId) {
+                        await menuDB.updateProduct(parseInt(productId), productData);
+                        Utils.showNotification('Prodotto modificato');
+                    } else {
+                        const nextId = await menuDB.getNextProductId();
+                        await menuDB.addProduct({ id: nextId, ...productData });
+                        Utils.showNotification('Prodotto aggiunto');
+                    }
+
+                    await appState.loadData();
+                    UI.renderCategories();
+                    this.showProducts();
+                } catch (error) {
+                    Utils.showNotification('Errore nel salvataggio');
+                    console.error('Errore saveProduct:', error);
+                }
+            },
+
+            getProductFormData() {
+                return {
                     category: document.getElementById('category').value,
                     name: document.getElementById('name').value,
                     description: document.getElementById('description').value,
                     price: parseFloat(document.getElementById('price').value)
                 };
-
-                if (productId) {
-                    await menuDB.updateProduct(parseInt(productId), productData);
-                    showNotification('Prodotto modificato');
-                } else {
-                    const nextId = await menuDB.getNextProductId();
-                    await menuDB.addProduct({ id: nextId, ...productData });
-                    showNotification('Prodotto aggiunto');
-                }
-
-                await loadData();
-                renderCategories();
-                showProducts();
-            } catch (error) {
-                showNotification('Errore nel salvataggio');
             }
-        }
+        };
 
         // ==========================================
-        // GESTIONE CATEGORIE
+        // CATEGORY MANAGEMENT MODULE
         // ==========================================
+        
+        const CategoryManager = {
+            showCategoryManagement() {
+                Utils.hideAllPanels();
+                document.getElementById('categoryManagement').classList.remove('hidden');
+            },
 
-        function showCategoryManagement() {
-            hideAllPanels();
-            document.getElementById('categoryManagement').classList.remove('hidden');
-        }
+            showCategoryForm(mode) {
+                Utils.hideAllPanels();
+                document.getElementById('categoryForm').classList.remove('hidden');
+                
+                this.configureCategoryForm(mode);
+            },
 
-        function showCategoryForm(mode) {
-            hideAllPanels();
-            document.getElementById('categoryForm').classList.remove('hidden');
-            
-            const modeConfig = {
-                add: { title: 'Aggiungi Categoria', submitText: 'Aggiungi', showSelect: false, btnClass: 'btn-primary' },
-                edit: { title: 'Modifica Categoria', submitText: 'Modifica', showSelect: true, btnClass: 'btn-primary' },
-                delete: { title: 'Elimina Categoria', submitText: 'Elimina', showSelect: true, btnClass: 'btn-danger' }
-            };
+            configureCategoryForm(mode) {
+                const modeConfig = {
+                    add: { title: 'Aggiungi Categoria', submitText: 'Aggiungi', showSelect: false, btnClass: 'btn-primary' },
+                    edit: { title: 'Modifica Categoria', submitText: 'Modifica', showSelect: true, btnClass: 'btn-primary' },
+                    delete: { title: 'Elimina Categoria', submitText: 'Elimina', showSelect: true, btnClass: 'btn-danger' }
+                };
 
-            const config = modeConfig[mode];
-            document.getElementById('categoryMode').value = mode;
-            document.getElementById('categoryFormTitle').textContent = config.title;
-            document.getElementById('categorySubmitBtn').textContent = config.submitText;
-            document.getElementById('categorySubmitBtn').className = `btn ${config.btnClass}`;
-            document.getElementById('categorySelect').style.display = config.showSelect ? 'block' : 'none';
+                const config = modeConfig[mode];
+                document.getElementById('categoryMode').value = mode;
+                document.getElementById('categoryFormTitle').textContent = config.title;
+                document.getElementById('categorySubmitBtn').textContent = config.submitText;
+                document.getElementById('categorySubmitBtn').className = `btn ${config.btnClass}`;
+                document.getElementById('categorySelect').style.display = config.showSelect ? 'block' : 'none';
 
-            // Reset form
-            document.getElementById('categoryForm').reset();
-            document.getElementById('categoryMode').value = mode;
+                Utils.resetForm('#categoryForm form');
+                document.getElementById('categoryMode').value = mode;
 
-            // Configure fields
-            const fields = ['categoryId', 'categoryName', 'categoryEmoji'];
-            fields.forEach(field => {
-                document.getElementById(field).disabled = mode === 'delete';
-            });
+                this.configureFormFields(mode);
 
-            if (config.showSelect) {
+                if (config.showSelect) {
+                    this.populateCategorySelect();
+                }
+            },
+
+            configureFormFields(mode) {
+                const fields = ['categoryId', 'categoryName', 'categoryEmoji'];
+                fields.forEach(field => {
+                    document.getElementById(field).disabled = mode === 'delete';
+                });
+            },
+
+            populateCategorySelect() {
                 const select = document.getElementById('categoryToEdit');
-                select.innerHTML = categories.map(cat => 
+                select.innerHTML = appState.categories.map(cat => 
                     `<option value="${cat.id}">${cat.emoji} ${cat.name}</option>`
                 ).join('');
-                if (categories.length > 0) loadCategoryData();
-            }
-        }
-
-        function loadCategoryData() {
-            const selectedId = document.getElementById('categoryToEdit').value;
-            const category = categories.find(c => c.id === selectedId);
-            if (category) {
-                document.getElementById('originalCategoryId').value = category.id;
-                document.getElementById('categoryId').value = category.id;
-                document.getElementById('categoryName').value = category.name;
-                document.getElementById('categoryEmoji').value = category.emoji;
-            }
-        }
-
-        async function saveCategory(event) {
-            event.preventDefault();
-            
-            const mode = document.getElementById('categoryMode').value;
-            const categoryData = {
-                id: document.getElementById('categoryId').value.toLowerCase().replace(/\s+/g, '-'),
-                name: document.getElementById('categoryName').value,
-                emoji: document.getElementById('categoryEmoji').value
-            };
-
-            try {
-                if (mode === 'add') {
-                    if (categories.find(c => c.id === categoryData.id)) {
-                        showNotification('ID categoria già esistente');
-                        return;
-                    }
-                    await menuDB.addCategory(categoryData);
-                    showNotification('Categoria aggiunta');
-
-                } else if (mode === 'edit') {
-                    const originalId = document.getElementById('originalCategoryId').value;
-                    
-                    if (categoryData.id !== originalId) {
-                        if (categories.find(c => c.id === categoryData.id)) {
-                            showNotification('ID categoria già esistente');
-                            return;
-                        }
-                        
-                        await menuDB.deleteCategory(originalId);
-                        await menuDB.addCategory(categoryData);
-                        
-                        // Update products
-                        const productsToUpdate = products.filter(p => p.category === originalId);
-                        for (const product of productsToUpdate) {
-                            await menuDB.updateProduct(product.id, { ...product, category: categoryData.id });
-                        }
-                    } else {
-                        await menuDB.addCategory(categoryData);
-                    }
-                    showNotification('Categoria modificata');
-
-                } else if (mode === 'delete') {
-                    const categoryId = document.getElementById('originalCategoryId').value;
-                    const productsInCategory = products.filter(p => p.category === categoryId);
-                    
-                    if (productsInCategory.length > 0) {
-                        const confirmDelete = confirm(`Ci sono ${productsInCategory.length} prodotti in questa categoria. Eliminarla cancellerà anche tutti i prodotti. Continuare?`);
-                        if (!confirmDelete) return;
-                        
-                        for (const product of productsInCategory) {
-                            await menuDB.deleteProduct(product.id);
-                        }
-                    }
-                    
-                    await menuDB.deleteCategory(categoryId);
-                    showNotification('Categoria eliminata');
+                
+                if (appState.categories.length > 0) {
+                    this.loadCategoryData();
                 }
+            },
 
-                await loadData();
-                renderCategories();
-                showCategoryManagement();
-            } catch (error) {
-                showNotification('Errore: ' + error.message);
+            loadCategoryData() {
+                const selectedId = document.getElementById('categoryToEdit').value;
+                const category = appState.categories.find(c => c.id === selectedId);
+                if (category) {
+                    document.getElementById('originalCategoryId').value = category.id;
+                    document.getElementById('categoryId').value = category.id;
+                    document.getElementById('categoryName').value = category.name;
+                    document.getElementById('categoryEmoji').value = category.emoji;
+                }
+            },
+
+            async saveCategory(event) {
+                event.preventDefault();
+                
+                const mode = document.getElementById('categoryMode').value;
+                const categoryData = this.getCategoryFormData();
+
+                try {
+                    switch (mode) {
+                        case 'add':
+                            await this.addCategory(categoryData);
+                            break;
+                        case 'edit':
+                            await this.editCategory(categoryData);
+                            break;
+                        case 'delete':
+                            await this.deleteCategory();
+                            break;
+                    }
+
+                    await appState.loadData();
+                    UI.renderCategories();
+                    this.showCategoryManagement();
+                } catch (error) {
+                    Utils.showNotification('Errore: ' + error.message);
+                    console.error('Errore saveCategory:', error);
+                }
+            },
+
+            getCategoryFormData() {
+                return {
+                    id: document.getElementById('categoryId').value.toLowerCase().replace(/\s+/g, '-'),
+                    name: document.getElementById('categoryName').value,
+                    emoji: document.getElementById('categoryEmoji').value
+                };
+            },
+
+            async addCategory(categoryData) {
+                if (appState.categories.find(c => c.id === categoryData.id)) {
+                    throw new Error('ID categoria già esistente');
+                }
+                await menuDB.addCategory(categoryData);
+                Utils.showNotification('Categoria aggiunta');
+            },
+
+            async editCategory(categoryData) {
+                const originalId = document.getElementById('originalCategoryId').value;
+                
+                if (categoryData.id !== originalId) {
+                    if (appState.categories.find(c => c.id === categoryData.id)) {
+                        throw new Error('ID categoria già esistente');
+                    }
+                    
+                    await menuDB.deleteCategory(originalId);
+                    await menuDB.addCategory(categoryData);
+                    
+                    // Update products with new category ID
+                    const productsToUpdate = appState.products.filter(p => p.category === originalId);
+                    for (const product of productsToUpdate) {
+                        await menuDB.updateProduct(product.id, { ...product, category: categoryData.id });
+                    }
+                } else {
+                    await menuDB.addCategory(categoryData);
+                }
+                Utils.showNotification('Categoria modificata');
+            },
+
+            async deleteCategory() {
+                const categoryId = document.getElementById('originalCategoryId').value;
+                const productsInCategory = appState.products.filter(p => p.category === categoryId);
+                
+                if (productsInCategory.length > 0) {
+                    const confirmDelete = confirm(
+                        `Ci sono ${productsInCategory.length} prodotti in questa categoria. ` +
+                        `Eliminarla cancellerà anche tutti i prodotti. Continuare?`
+                    );
+                    if (!confirmDelete) return;
+                    
+                    for (const product of productsInCategory) {
+                        await menuDB.deleteProduct(product.id);
+                    }
+                }
+                
+                await menuDB.deleteCategory(categoryId);
+                Utils.showNotification('Categoria eliminata');
             }
-        }
+        };
 
         // ==========================================
-        // GESTIONE QR CODE
+        // QR CODE MANAGEMENT MODULE
         // ==========================================
+        
+        const QRCodeManager = {
+            showQRCode() {
+                Utils.hideAllPanels();
+                document.getElementById('qrCodePanel').classList.remove('hidden');
+                this.generateQRCode();
+            },
 
-        function showQRCode() {
-            hideAllPanels();
-            document.getElementById('qrCodePanel').classList.remove('hidden');
-            generateQRCode();
-        }
+            generateQRCode() {
+                const container = document.getElementById('qrCodeContainer');
+                container.innerHTML = '';
 
-        function generateQRCode() {
-            const container = document.getElementById('qrCodeContainer');
-            container.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = './img/QRMenu.png';
+                img.alt = 'QR Code Menu BiblioCafè';
+                img.className = 'qr-image';
+                
+                img.onerror = () => {
+                    container.innerHTML = this.renderQRCodeError();
+                    Utils.showNotification('Immagine QR Code non trovata');
+                };
 
-            const img = document.createElement('img');
-            img.src = './img/QRMenu.png';
-            img.alt = 'QR Code Menu BiblioCafè';
-            img.style.cssText = 'width: 300px; height: 300px; border: 2px solid var(--primary-color); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow);';
-            
-            img.onerror = () => {
-                container.innerHTML = `
-                    <div style="width: 300px; height: 300px; border: 2px dashed var(--primary-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-color); text-align: center; font-size: 0.9rem;">
+                container.appendChild(img);
+            },
+
+            renderQRCodeError() {
+                return `
+                    <div class="qr-error">
                         <div>📱<br>Immagine QR Code<br>non trovata</div>
                     </div>
                 `;
-                showNotification('Immagine QR Code non trovata');
-            };
+            },
 
-            container.appendChild(img);
-        }
+            printQRCode() {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(this.generatePrintHTML());
+                printWindow.document.close();
+                
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+                
+                Utils.showNotification('QR Code inviato alla stampante');
+            },
 
-        function printQRCode() {
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>QR Code Menu - BiblioCafè</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; text-align: center; padding: 2rem; }
-                        .qr-container { border: 2px solid #0c4840; border-radius: 12px; padding: 2rem; margin: 2rem auto; max-width: 400px; }
-                        h1 { color: #0c4840; margin-bottom: 1rem; }
-                        .qr-image { max-width: 100%; height: auto; border-radius: 8px; }
-                        .instructions { margin-top: 1.5rem; color: #666; font-size: 0.9rem; }
-                    </style>
-                </head>
-                <body>
-                    <div class="qr-container">
-                        <h1>BiblioCafè</h1>
-                        <h2>Menu Digitale</h2>
-                        <img src="./img/QRMenu.png" alt="QR Code Menu" class="qr-image">
-                        <div class="instructions">
-                            Inquadra il QR Code con la fotocamera del tuo smartphone<br>
-                            per accedere al menu digitale
+            generatePrintHTML() {
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>QR Code Menu - BiblioCafè</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; text-align: center; padding: 2rem; }
+                            .qr-container { border: 2px solid #0c4840; border-radius: 12px; padding: 2rem; margin: 2rem auto; max-width: 400px; }
+                            h1 { color: #0c4840; margin-bottom: 1rem; }
+                            .qr-image { max-width: 100%; height: auto; border-radius: 8px; }
+                            .instructions { margin-top: 1.5rem; color: #666; font-size: 0.9rem; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="qr-container">
+                            <h1>BiblioCafè</h1>
+                            <h2>Menu Digitale</h2>
+                            <img src="./img/QRMenu.png" alt="QR Code Menu" class="qr-image">
+                            <div class="instructions">
+                                Inquadra il QR Code con la fotocamera del tuo smartphone<br>
+                                per accedere al menu digitale
+                            </div>
                         </div>
-                    </div>
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 500);
-            
-            showNotification('QR Code inviato alla stampante');
-        }
+                    </body>
+                    </html>
+                `;
+            }
+        };
 
         // ==========================================
-        // INIZIALIZZAZIONE
+        // MAIN APPLICATION MODULE
         // ==========================================
+        
+        const App = {
+            async initialize() {
+                try {
+                    await menuDB.init();
+                    await menuDB.seedDatabase();
+                    await appState.loadData();
+                    UI.renderCategories();
+                    ProductManager.showProducts();
+                } catch (error) {
+                    console.error('Errore inizializzazione:', error);
+                    Utils.showNotification('Errore nel caricamento dei dati');
+                }
+            }
+        };
 
+        // ==========================================
+        // GLOBAL EVENT HANDLERS
+        // ==========================================
+        
+        // Make functions globally accessible for onclick handlers
+        window.handleLogin = Auth.handleLogin.bind(Auth);
+        window.logout = Auth.logout.bind(Auth);
+        window.showProducts = ProductManager.showProducts.bind(ProductManager);
+        window.filterProducts = ProductManager.filterProducts.bind(ProductManager);
+        window.showProductForm = ProductManager.showProductForm.bind(ProductManager);
+        window.editProduct = ProductManager.editProduct.bind(ProductManager);
+        window.deleteProduct = ProductManager.deleteProduct.bind(ProductManager);
+        window.saveProduct = ProductManager.saveProduct.bind(ProductManager);
+        window.showCategoryManagement = CategoryManager.showCategoryManagement.bind(CategoryManager);
+        window.showCategoryForm = CategoryManager.showCategoryForm.bind(CategoryManager);
+        window.loadCategoryData = CategoryManager.loadCategoryData.bind(CategoryManager);
+        window.saveCategory = CategoryManager.saveCategory.bind(CategoryManager);
+        window.showQRCode = QRCodeManager.showQRCode.bind(QRCodeManager);
+        window.printQRCode = QRCodeManager.printQRCode.bind(QRCodeManager);
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        
         document.addEventListener('DOMContentLoaded', () => {
             console.log('BiblioCafè Admin Panel caricato');
         });
     </script>
 </body>
-
 </html>
