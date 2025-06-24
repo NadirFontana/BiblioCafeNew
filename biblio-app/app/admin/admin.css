@@ -33,10 +33,9 @@ body {
     align-items: center;
     position: sticky;
     top: 0;
-    z-index: 30;
+    z-index: 20;
     box-shadow: 0 2px 10px var(--shadow);
     width: 100%;
-    height: 64px; /* Altezza fissa per calcoli */
 }
 
 /* Container Styles */
@@ -300,15 +299,13 @@ body {
     to { transform: translateX(0); }
 }
 
-/* Categories Mobile Styles - FIXED POSITION */
+/* Categories Mobile Styles */
 .categories-mobile {
     background: var(--paper-color);
     padding: 0.5rem;
-    position: fixed;
-    top: 64px; /* Subito sotto l'header */
-    left: 0;
-    right: 0;
-    z-index: 20;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     width: 100%;
     display: none;
@@ -354,8 +351,6 @@ body {
         gap: 0;
         padding: 0;
         width: 100%;
-        /* Aggiunge spazio per la barra delle categorie fissa */
-        padding-top: 60px;
     }
 
     .sidebar {
