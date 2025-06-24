@@ -90,6 +90,10 @@ body {
     overflow: hidden;
     white-space: nowrap;
     min-width: min-content;
+}
+
+/* Sidebar buttons specific styling */
+.sidebar .btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -114,15 +118,15 @@ body {
     background: #c82333;
 }
 
-/* Button emoji and text styling */
-.button-emoji {
+/* Button emoji and text styling - Sidebar only */
+.sidebar .button-emoji {
     font-size: 1em;
     line-height: 1;
     display: inline-block;
     flex-shrink: 0;
 }
 
-.button-text {
+.sidebar .button-text {
     display: inline-block;
     flex-grow: 1;
     text-align: left;
@@ -298,6 +302,27 @@ body {
     width: 100%;
 }
 
+/* Mobile categories styling */
+.categories-mobile .btn,
+.categories-mobile .nav-button {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.categories-mobile .button-emoji {
+    font-size: 1em;
+    line-height: 1;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.categories-mobile .button-text {
+    display: inline-block;
+    flex-grow: 1;
+    text-align: left;
+}
+
 /* Loading animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -366,17 +391,18 @@ body {
 
     /* Mobile button text can be hidden on very small screens */
     @media (max-width: 480px) {
-        .button-text {
+        .categories-mobile .button-text {
             display: none;
         }
         
-        .btn, .nav-button {
+        .categories-mobile .btn, 
+        .categories-mobile .nav-button {
             padding: 0.5rem;
             min-width: 2.5rem;
             justify-content: center;
         }
         
-        .button-emoji {
+        .categories-mobile .button-emoji {
             font-size: 1.1em;
         }
     }
