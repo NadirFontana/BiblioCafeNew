@@ -1,12 +1,12 @@
 :root {
-    --primary-color: #0c4840;
-    --accent-color: #15705f;
-    --text-color: #083830;
-    --light-bg: #f0f5f3;
-    --paper-color: #FFFFFF;
-    --gold: #1a8570;
-    --danger: #dc3545;
-    --shadow: rgba(0, 0, 0, 0.1);
+    --primary-color: #0c4840;    
+    --accent-color: #15705f;     
+    --text-color: #083830;       
+    --light-bg: #f0f5f3;         
+    --paper-color: #FFFFFF;      
+    --gold: #1a8570;             
+    --danger: #dc3545;           
+    --shadow: rgba(0,0,0,0.1);   
 }
 
 * {
@@ -64,14 +64,17 @@ body {
 
 /* Navigation and Button Styles - UNIFIED STYLING */
 .categories-scroll {
-    overflow: visible; /* Assicurati che non ci sia overflow nascosto */
-    white-space: normal; /* Permetti il wrapping */
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0.5rem;
 }
 
 /* UNIFIED BUTTON STYLING - All buttons use same colors */
-.btn,
-.nav-button,
-.sidebar .btn {
+.btn, .nav-button, .sidebar .btn {
     padding: 0.5rem 0.8rem;
     border: 1px solid var(--gold);
     background: var(--primary-color);
@@ -98,32 +101,26 @@ body {
 }
 
 /* UNIFIED HOVER STATES - All buttons have same hover behavior */
-.btn:hover,
-.nav-button:hover,
-.sidebar .btn:hover {
+.btn:hover, .nav-button:hover, .sidebar .btn:hover {
     transform: translateY(-1px);
     background: var(--accent-color);
     border-color: var(--gold);
 }
 
 /* UNIFIED ACTIVE STATES - All buttons have same active behavior */
-.btn.active,
-.nav-button.active,
-.sidebar .btn.active {
+.btn.active, .nav-button.active, .sidebar .btn.active {
     background: var(--accent-color);
     transform: translateY(-1px);
     border-color: var(--gold);
 }
 
 /* Danger buttons maintain their red color */
-.btn-danger,
-.sidebar .btn-danger {
+.btn-danger, .sidebar .btn-danger {
     background: var(--danger);
     border-color: var(--danger);
 }
 
-.btn-danger:hover,
-.sidebar .btn-danger:hover {
+.btn-danger:hover, .sidebar .btn-danger:hover {
     background: #c82333;
     border-color: #c82333;
 }
@@ -298,36 +295,47 @@ body {
 }
 
 @keyframes slideIn {
-    from {
-        transform: translateX(100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
 }
 
 /* Categories Mobile Styles */
 .categories-mobile {
+    background: var(--paper-color);
+    padding: 0.5rem;
     position: sticky;
     top: 0;
-    z-index: 10;
-    background: var(--paper-color);
-    display: none;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     width: 100%;
-    box-shadow: 0 2px 8px var(--shadow);
-    padding: 0.5rem;
+    display: none;
+}
+
+/* Mobile categories styling */
+.categories-mobile .btn,
+.categories-mobile .nav-button {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.categories-mobile .button-emoji {
+    font-size: 1em;
+    line-height: 1;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.categories-mobile .button-text {
+    display: inline-block;
+    flex-grow: 1;
+    text-align: left;
 }
 
 /* Loading animation */
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Media Queries */
@@ -364,7 +372,7 @@ body {
         gap: 1rem;
         padding: 0.5rem;
     }
-
+    
     .product-card {
         padding: 1rem;
     }
@@ -384,11 +392,28 @@ body {
         font-size: 1.2rem;
     }
 
-    .btn,
-    .nav-button {
+    .btn, .nav-button {
         font-size: 0.8rem;
         padding: 0.4rem 0.6rem;
         gap: 0.3rem;
+    }
+
+    /* Mobile button text can be hidden on very small screens */
+    @media (max-width: 480px) {
+        .categories-mobile .button-text {
+            display: none;
+        }
+        
+        .categories-mobile .btn, 
+        .categories-mobile .nav-button {
+            padding: 0.5rem;
+            min-width: 2.5rem;
+            justify-content: center;
+        }
+        
+        .categories-mobile .button-emoji {
+            font-size: 1.1em;
+        }
     }
 }
 
@@ -397,8 +422,7 @@ body {
         font-size: 1.8rem;
     }
 
-    .btn,
-    .nav-button {
+    .btn, .nav-button {
         font-size: 0.9rem;
         padding: 0.8rem 1.2rem;
         gap: 0.5rem;
