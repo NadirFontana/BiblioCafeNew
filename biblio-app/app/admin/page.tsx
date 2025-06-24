@@ -14,7 +14,7 @@ export default function AdminPage() {
   const [currentFilter, setCurrentFilter] = useState<string | null>(null);
   const [notification, setNotification] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Form states
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -30,15 +30,15 @@ export default function AdminPage() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Carica categorie
       const categoriesData = await categoriesApi.getAll();
       setCategories(categoriesData);
-      
+
       // Carica tutti i prodotti
       const productsData = await productsApi.getAll();
       setProducts(productsData);
-      
+
     } catch (err) {
       console.error('Errore nel caricamento dei dati:', err);
       showNotification('Errore nel caricamento dei dati');
@@ -54,7 +54,7 @@ export default function AdminPage() {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     // Credenziali hardcoded (in produzione dovrebbero venire da variabili ambiente)
     if (loginForm.username === 'caffetteria' && loginForm.password === 'menu2024') {
       setIsLoggedIn(true);
@@ -83,7 +83,7 @@ export default function AdminPage() {
   const handleSaveProduct = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       const formData = new FormData(e.target as HTMLFormElement);
       const productData = {
@@ -94,7 +94,7 @@ export default function AdminPage() {
         available: true,
         order_index: 0
       };
-      
+
       if (editingProduct) {
         await productsApi.update({
           ...productData,
@@ -105,11 +105,11 @@ export default function AdminPage() {
         await productsApi.create(productData);
         showNotification('Prodotto aggiunto con successo');
       }
-      
+
       await loadData(); // Ricarica i dati
       setCurrentView('products');
       setEditingProduct(null);
-      
+
     } catch (err) {
       console.error('Errore nel salvataggio del prodotto:', err);
       showNotification('Errore nel salvataggio del prodotto');
@@ -122,7 +122,7 @@ export default function AdminPage() {
     if (!confirm('Sei sicuro di voler eliminare questo prodotto?')) {
       return;
     }
-    
+
     setIsLoading(true);
     try {
       await productsApi.delete(productId);
@@ -139,7 +139,7 @@ export default function AdminPage() {
   const handleSaveCategory = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       const formData = new FormData(e.target as HTMLFormElement);
       const categoryData = {
@@ -148,7 +148,7 @@ export default function AdminPage() {
         emoji: formData.get('categoryEmoji') as string,
         order_index: 0
       };
-      
+
       if (categoryFormMode === 'add') {
         await categoriesApi.create(categoryData);
         showNotification('Categoria aggiunta con successo');
@@ -159,10 +159,10 @@ export default function AdminPage() {
         await categoriesApi.delete(categoryData.id);
         showNotification('Categoria eliminata con successo');
       }
-      
+
       await loadData(); // Ricarica i dati
       setCurrentView('categoryManagement');
-      
+
     } catch (err) {
       console.error('Errore nell\'operazione sulla categoria:', err);
       showNotification('Errore nell\'operazione sulla categoria');
@@ -184,7 +184,7 @@ export default function AdminPage() {
             {notification}
           </div>
         )}
-        
+
         <form id="loginForm" onSubmit={handleLogin}>
           <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-color)' }}>Admin Login</h2>
           <div className="form-group">
@@ -295,7 +295,6 @@ export default function AdminPage() {
           <button
             onClick={() => { setCurrentView('productForm'); setEditingProduct(null); }}
             className="nav-button"
-            style={{ background: 'var(--gold)' }}
           >
             <span className="button-emoji">➕</span>
             <span className="button-text">Aggiungi</span>
@@ -303,7 +302,6 @@ export default function AdminPage() {
           <button
             onClick={() => setCurrentView('categoryManagement')}
             className="nav-button"
-            style={{ background: '#6f42c1' }}
           >
             <span className="button-emoji">📂</span>
             <span className="button-text">Categorie</span>
@@ -311,7 +309,6 @@ export default function AdminPage() {
           <button
             onClick={() => setCurrentView('qrCode')}
             className="nav-button"
-            style={{ background: '#fd7e14' }}
           >
             <span className="button-emoji">📱</span>
             <span className="button-text">QR Code</span>
@@ -323,7 +320,7 @@ export default function AdminPage() {
         {/* Sidebar - Desktop */}
         <aside className="sidebar">
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-color)' }}>Navigazione</h3>
-          
+
           <div style={{ marginBottom: '2rem' }}>
             <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '1rem', textTransform: 'uppercase' }}>
               Filtri Categoria
@@ -353,7 +350,7 @@ export default function AdminPage() {
               })}
             </div>
           </div>
-          
+
           <div style={{ borderTop: '1px solid var(--light-bg)', paddingTop: '1.5rem' }}>
             <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '1rem', textTransform: 'uppercase' }}>
               Azioni
@@ -362,7 +359,7 @@ export default function AdminPage() {
               <button
                 onClick={() => { setCurrentView('productForm'); setEditingProduct(null); }}
                 className="btn"
-                style={{ width: '100%', background: 'var(--gold)' }}
+                style={{ width: '100%' }}
               >
                 <span className="button-emoji">➕</span>
                 <span className="button-text">Aggiungi Prodotto</span>
@@ -370,7 +367,7 @@ export default function AdminPage() {
               <button
                 onClick={() => setCurrentView('categoryManagement')}
                 className="btn"
-                style={{ width: '100%', background: '#6f42c1' }}
+                style={{ width: '100%' }}
               >
                 <span className="button-emoji">📂</span>
                 <span className="button-text">Gestisci Categorie</span>
@@ -378,7 +375,7 @@ export default function AdminPage() {
               <button
                 onClick={() => setCurrentView('qrCode')}
                 className="btn"
-                style={{ width: '100%', background: '#fd7e14' }}
+                style={{ width: '100%' }}
               >
                 <span className="button-emoji">📱</span>
                 <span className="button-text">QR Code</span>
@@ -515,7 +512,7 @@ export default function AdminPage() {
           {currentView === 'categoryManagement' && (
             <div style={{ maxWidth: '500px', background: 'var(--paper-color)', padding: '2rem', borderRadius: '12px', boxShadow: '0 2px 15px var(--shadow)' }}>
               <h3 style={{ marginBottom: '2rem', color: 'var(--text-color)' }}>Gestione Categorie</h3>
-              
+
               <div style={{ marginBottom: '2rem' }}>
                 <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '1rem' }}>Categorie esistenti:</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -535,7 +532,7 @@ export default function AdminPage() {
                   ))}
                 </div>
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <button
                   onClick={() => {
@@ -556,7 +553,7 @@ export default function AdminPage() {
                     setCurrentView('categoryForm');
                   }}
                   className="btn"
-                  style={{ width: '100%', background: 'var(--gold)' }}
+                  style={{ width: '100%' }}
                   disabled={categories.length === 0}
                 >
                   <span className="button-emoji">✏️</span>
@@ -591,8 +588,8 @@ export default function AdminPage() {
           {currentView === 'categoryForm' && (
             <form id="productForm" onSubmit={handleSaveCategory}>
               <h3 style={{ marginBottom: '2rem', color: 'var(--text-color)' }}>
-                {categoryFormMode === 'add' ? 'Aggiungi Categoria' : 
-                 categoryFormMode === 'edit' ? 'Modifica Categoria' : 'Elimina Categoria'}
+                {categoryFormMode === 'add' ? 'Aggiungi Categoria' :
+                  categoryFormMode === 'edit' ? 'Modifica Categoria' : 'Elimina Categoria'}
               </h3>
               {(categoryFormMode === 'edit' || categoryFormMode === 'delete') && (
                 <div className="form-group">
@@ -614,7 +611,7 @@ export default function AdminPage() {
                   </select>
                 </div>
               )}
-              
+
               <div className="form-group">
                 <label htmlFor="categoryId">ID Categoria</label>
                 <input
@@ -629,7 +626,7 @@ export default function AdminPage() {
                   title="Solo lettere minuscole, numeri e trattini"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="categoryName">Nome Categoria</label>
                 <input
@@ -642,7 +639,7 @@ export default function AdminPage() {
                   defaultValue={editingCategory?.name || ''}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="categoryEmoji">Emoji</label>
                 <input
@@ -656,7 +653,7 @@ export default function AdminPage() {
                   maxLength={2}
                 />
               </div>
-              
+
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <button
                   type="submit"
@@ -664,8 +661,8 @@ export default function AdminPage() {
                   className={categoryFormMode === 'delete' ? 'btn btn-danger' : 'btn'}
                 >
                   {isLoading ? 'Caricamento...' : (
-                    categoryFormMode === 'add' ? 'Aggiungi' : 
-                    categoryFormMode === 'edit' ? 'Modifica' : 'Elimina'
+                    categoryFormMode === 'add' ? 'Aggiungi' :
+                      categoryFormMode === 'edit' ? 'Modifica' : 'Elimina'
                   )}
                 </button>
                 <button
