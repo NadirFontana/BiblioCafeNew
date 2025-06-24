@@ -20,12 +20,28 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [categoryFormMode, setCategoryFormMode] = useState<'add' | 'edit' | 'delete'>('add');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryName, setCategoryName] = useState('');
+
+  // Funzione per generare l'ID dalla nome categoria
+  const generateCategoryId = (name: string) => {
+    return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
 
   useEffect(() => {
     if (isLoggedIn) {
       loadData();
     }
   }, [isLoggedIn]);
+
+  // Aggiorna l'ID quando cambia il nome della categoria
+  useEffect(() => {
+    if (categoryFormMode === 'add' || categoryFormMode === 'edit') {
+      const idField = document.getElementById('categoryId') as HTMLInputElement;
+      if (idField) {
+        idField.value = generateCategoryId(categoryName);
+      }
+    }
+  }, [categoryName, categoryFormMode]);
 
   const loadData = async () => {
     try {
@@ -162,6 +178,7 @@ export default function AdminPage() {
 
       await loadData(); // Ricarica i dati
       setCurrentView('categoryManagement');
+      setCategoryName(''); // Reset del nome categoria
 
     } catch (err) {
       console.error('Errore nell\'operazione sulla categoria:', err);
@@ -532,6 +549,7 @@ export default function AdminPage() {
                   onClick={() => {
                     setCategoryFormMode('add');
                     setEditingCategory(null);
+                    setCategoryName('');
                     setCurrentView('categoryForm');
                   }}
                   className="btn"
@@ -543,7 +561,9 @@ export default function AdminPage() {
                 <button
                   onClick={() => {
                     setCategoryFormMode('edit');
-                    setEditingCategory(categories[0] || null);
+                    const firstCategory = categories[0] || null;
+                    setEditingCategory(firstCategory);
+                    setCategoryName(firstCategory?.name || '');
                     setCurrentView('categoryForm');
                   }}
                   className="btn"
@@ -556,7 +576,9 @@ export default function AdminPage() {
                 <button
                   onClick={() => {
                     setCategoryFormMode('delete');
-                    setEditingCategory(categories[0] || null);
+                    const firstCategory = categories[0] || null;
+                    setEditingCategory(firstCategory);
+                    setCategoryName(firstCategory?.name || '');
                     setCurrentView('categoryForm');
                   }}
                   className="btn btn-danger"
@@ -594,6 +616,7 @@ export default function AdminPage() {
                     onChange={(e) => {
                       const cat = categories.find(c => c.id === e.target.value);
                       setEditingCategory(cat || null);
+                      setCategoryName(cat?.name || '');
                     }}
                     defaultValue={editingCategory?.id || ''}
                   >
@@ -607,21 +630,6 @@ export default function AdminPage() {
               )}
 
               <div className="form-group">
-                <label htmlFor="categoryId">ID Categoria</label>
-                <input
-                  type="text"
-                  name="categoryId"
-                  id="categoryId"
-                  className="form-control"
-                  required
-                  disabled={categoryFormMode === 'delete'}
-                  defaultValue={editingCategory?.id || ''}
-                  pattern="[a-z0-9-]+"
-                  title="Solo lettere minuscole, numeri e trattini"
-                />
-              </div>
-
-              <div className="form-group">
                 <label htmlFor="categoryName">Nome Categoria</label>
                 <input
                   type="text"
@@ -630,8 +638,30 @@ export default function AdminPage() {
                   className="form-control"
                   required
                   disabled={categoryFormMode === 'delete'}
-                  defaultValue={editingCategory?.name || ''}
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="categoryId">ID Categoria (generato automaticamente)</label>
+                <input
+                  type="text"
+                  name="categoryId"
+                  id="categoryId"
+                  className="form-control"
+                  required
+                  readOnly
+                  value={generateCategoryId(categoryName)}
+                  style={{ 
+                    backgroundColor: '#f8f9fa', 
+                    color: '#6c757d',
+                    cursor: 'not-allowed'
+                  }}
+                />
+                <small style={{ color: 'var(--accent-color)', fontSize: '0.8rem' }}>
+                  L'ID verrà generato automaticamente dal nome della categoria
+                </small>
               </div>
 
               <div className="form-group">
