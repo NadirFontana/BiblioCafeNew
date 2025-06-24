@@ -90,6 +90,9 @@ body {
     overflow: hidden;
     white-space: nowrap;
     min-width: min-content;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .btn:hover, .nav-button:hover {
@@ -111,13 +114,29 @@ body {
     background: #c82333;
 }
 
-/* Category Icons */
-.btn[data-category="colazione"]::after { content: " 🥐"; }
-.btn[data-category="snack"]::after { content: " 🥪"; }
-.btn[data-category="caffetteria"]::after { content: " ☕"; }
-.btn[data-category="aperitivi"]::after { content: " 🍹"; }
-.btn[data-category="cocktails"]::after { content: " 🍸"; }
-.btn[data-category="soft-drinks"]::after { content: " 🥤"; }
+/* Button emoji and text styling */
+.button-emoji {
+    font-size: 1em;
+    line-height: 1;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.button-text {
+    display: inline-block;
+    flex-grow: 1;
+    text-align: left;
+}
+
+/* Legacy category icons support (remove ::after pseudo-elements) */
+.btn[data-category="colazione"]::after,
+.btn[data-category="snack"]::after,
+.btn[data-category="caffetteria"]::after,
+.btn[data-category="aperitivi"]::after,
+.btn[data-category="cocktails"]::after,
+.btn[data-category="soft-drinks"]::after {
+    content: none;
+}
 
 /* Main Content Styles */
 .main-content {
@@ -279,6 +298,12 @@ body {
     width: 100%;
 }
 
+/* Loading animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Media Queries */
 @media (max-width: 768px) {
     .admin-container {
@@ -336,6 +361,24 @@ body {
     .btn, .nav-button {
         font-size: 0.8rem;
         padding: 0.4rem 0.6rem;
+        gap: 0.3rem;
+    }
+
+    /* Mobile button text can be hidden on very small screens */
+    @media (max-width: 480px) {
+        .button-text {
+            display: none;
+        }
+        
+        .btn, .nav-button {
+            padding: 0.5rem;
+            min-width: 2.5rem;
+            justify-content: center;
+        }
+        
+        .button-emoji {
+            font-size: 1.1em;
+        }
     }
 }
 
@@ -347,5 +390,6 @@ body {
     .btn, .nav-button {
         font-size: 0.9rem;
         padding: 0.8rem 1.2rem;
+        gap: 0.5rem;
     }
 }
