@@ -279,8 +279,7 @@ export default function AdminPage() {
             onClick={() => setCurrentFilter(null)}
             className={`nav-button ${currentFilter === null ? 'active' : ''}`}
           >
-            <span className="button-emoji">📋</span>
-            <span className="button-text">Tutti i Prodotti</span>
+            📋 Tutti i Prodotti
           </button>
           {categories.map(cat => (
             <button
@@ -288,30 +287,26 @@ export default function AdminPage() {
               onClick={() => setCurrentFilter(cat.id)}
               className={`nav-button ${currentFilter === cat.id ? 'active' : ''}`}
             >
-              <span className="button-emoji">{cat.emoji}</span>
-              <span className="button-text">{cat.name}</span>
+              {cat.emoji} {cat.name}
             </button>
           ))}
           <button
             onClick={() => { setCurrentView('productForm'); setEditingProduct(null); }}
             className="nav-button"
           >
-            <span className="button-emoji">➕</span>
-            <span className="button-text">Aggiungi</span>
+            ➕ Aggiungi
           </button>
           <button
             onClick={() => setCurrentView('categoryManagement')}
             className="nav-button"
           >
-            <span className="button-emoji">📂</span>
-            <span className="button-text">Categorie</span>
+            📂 Categorie
           </button>
           <button
             onClick={() => setCurrentView('qrCode')}
             className="nav-button"
           >
-            <span className="button-emoji">📱</span>
-            <span className="button-text">QR Code</span>
+            📱 QR Code
           </button>
         </div>
       </div>
