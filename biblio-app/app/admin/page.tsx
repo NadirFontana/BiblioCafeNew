@@ -319,7 +319,6 @@ export default function AdminPage() {
       <div className="admin-grid">
         {/* Sidebar - Desktop */}
         <aside className="sidebar">
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-color)' }}>Navigazione</h3>
 
           <div style={{ marginBottom: '2rem' }}>
             <h4 style={{ fontSize: '0.9rem', color: 'var(--accent-color)', marginBottom: '1rem', textTransform: 'uppercase' }}>
