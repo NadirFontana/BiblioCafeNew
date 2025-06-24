@@ -63,17 +63,9 @@ body {
 }
 
 /* Navigation and Button Styles - UNIFIED STYLING */
-.nav-container,
 .categories-scroll {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    width: 100%;
-    padding: 0.5rem;
-    background: var(--paper-color);
-    box-shadow: 0 2px 8px var(--shadow);
-    margin: 0;
+    overflow: visible; /* Assicurati che non ci sia overflow nascosto */
+    white-space: normal; /* Permetti il wrapping */
 }
 
 /* UNIFIED BUTTON STYLING - All buttons use same colors */
@@ -320,9 +312,11 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--light-bg);
+    background: var(--paper-color);
     display: none;
     width: 100%;
+    box-shadow: 0 2px 8px var(--shadow);
+    padding: 0.5rem;
 }
 
 /* Loading animation */
