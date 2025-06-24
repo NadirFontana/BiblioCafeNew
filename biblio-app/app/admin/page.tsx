@@ -279,16 +279,17 @@ export default function AdminPage() {
             onClick={() => setCurrentFilter(null)}
             className={`nav-button ${currentFilter === null ? 'active' : ''}`}
           >
-            📋 Tutti i Prodotti
+            <span className="button-emoji">📋</span>
+            <span className="button-text">Tutti i Prodotti</span>
           </button>
           {categories.map(cat => (
             <button
               key={cat.id}
               onClick={() => setCurrentFilter(cat.id)}
               className={`nav-button ${currentFilter === cat.id ? 'active' : ''}`}
-              data-category={cat.id}
             >
-              {cat.name}
+              <span className="button-emoji">{cat.emoji}</span>
+              <span className="button-text">{cat.name}</span>
             </button>
           ))}
           <button
@@ -296,21 +297,24 @@ export default function AdminPage() {
             className="nav-button"
             style={{ background: 'var(--gold)' }}
           >
-            ➕ Aggiungi
+            <span className="button-emoji">➕</span>
+            <span className="button-text">Aggiungi</span>
           </button>
           <button
             onClick={() => setCurrentView('categoryManagement')}
             className="nav-button"
             style={{ background: '#6f42c1' }}
           >
-            📂 Categorie
+            <span className="button-emoji">📂</span>
+            <span className="button-text">Categorie</span>
           </button>
           <button
             onClick={() => setCurrentView('qrCode')}
             className="nav-button"
             style={{ background: '#fd7e14' }}
           >
-            📱 QR Code
+            <span className="button-emoji">📱</span>
+            <span className="button-text">QR Code</span>
           </button>
         </div>
       </div>
@@ -330,7 +334,8 @@ export default function AdminPage() {
                 className={`btn ${currentFilter === null ? 'active' : ''}`}
                 style={{ width: '100%', textAlign: 'left' }}
               >
-                📋 Tutti i Prodotti ({products.length})
+                <span className="button-emoji">📋</span>
+                <span className="button-text">Tutti i Prodotti ({products.length})</span>
               </button>
               {categories.map(cat => {
                 const count = products.filter(p => p.category_id === cat.id).length;
@@ -340,9 +345,9 @@ export default function AdminPage() {
                     onClick={() => setCurrentFilter(cat.id)}
                     className={`btn ${currentFilter === cat.id ? 'active' : ''}`}
                     style={{ width: '100%', textAlign: 'left' }}
-                    data-category={cat.id}
                   >
-                    {cat.name} ({count})
+                    <span className="button-emoji">{cat.emoji}</span>
+                    <span className="button-text">{cat.name} ({count})</span>
                   </button>
                 );
               })}
@@ -359,21 +364,24 @@ export default function AdminPage() {
                 className="btn"
                 style={{ width: '100%', background: 'var(--gold)' }}
               >
-                ➕ Aggiungi Prodotto
+                <span className="button-emoji">➕</span>
+                <span className="button-text">Aggiungi Prodotto</span>
               </button>
               <button
                 onClick={() => setCurrentView('categoryManagement')}
                 className="btn"
                 style={{ width: '100%', background: '#6f42c1' }}
               >
-                📂 Gestisci Categorie
+                <span className="button-emoji">📂</span>
+                <span className="button-text">Gestisci Categorie</span>
               </button>
               <button
                 onClick={() => setCurrentView('qrCode')}
                 className="btn"
                 style={{ width: '100%', background: '#fd7e14' }}
               >
-                📱 QR Code
+                <span className="button-emoji">📱</span>
+                <span className="button-text">QR Code</span>
               </button>
             </div>
           </div>
@@ -538,7 +546,8 @@ export default function AdminPage() {
                   className="btn"
                   style={{ width: '100%' }}
                 >
-                  ➕ Aggiungi Categoria
+                  <span className="button-emoji">➕</span>
+                  <span className="button-text">Aggiungi Categoria</span>
                 </button>
                 <button
                   onClick={() => {
@@ -550,7 +559,8 @@ export default function AdminPage() {
                   style={{ width: '100%', background: 'var(--gold)' }}
                   disabled={categories.length === 0}
                 >
-                  ✏️ Modifica Categoria
+                  <span className="button-emoji">✏️</span>
+                  <span className="button-text">Modifica Categoria</span>
                 </button>
                 <button
                   onClick={() => {
@@ -562,14 +572,16 @@ export default function AdminPage() {
                   style={{ width: '100%' }}
                   disabled={categories.length === 0}
                 >
-                  🗑️ Elimina Categoria
+                  <span className="button-emoji">🗑️</span>
+                  <span className="button-text">Elimina Categoria</span>
                 </button>
                 <button
                   onClick={() => setCurrentView('products')}
                   className="btn"
                   style={{ width: '100%', background: '#6c757d' }}
                 >
-                  ⬅️ Indietro
+                  <span className="button-emoji">⬅️</span>
+                  <span className="button-text">Indietro</span>
                 </button>
               </div>
             </div>
@@ -710,13 +722,15 @@ export default function AdminPage() {
                   onClick={printQRCode}
                   className="btn"
                 >
-                  🖨️ Stampa QR Code
+                  <span className="button-emoji">🖨️</span>
+                  <span className="button-text">Stampa QR Code</span>
                 </button>
                 <button
                   onClick={() => setCurrentView('products')}
                   className="btn btn-danger"
                 >
-                  ⬅️ Indietro
+                  <span className="button-emoji">⬅️</span>
+                  <span className="button-text">Indietro</span>
                 </button>
               </div>
             </div>
