@@ -317,7 +317,7 @@ body {
 
 /* Categories Mobile Styles */
 .categories-mobile {
-    position: sticky;
+    position: fixed;
     top: 56px;
     z-index: 10;
     background: var(--light-bg);
