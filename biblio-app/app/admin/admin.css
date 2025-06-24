@@ -317,8 +317,8 @@ body {
 
 /* Categories Mobile Styles */
 .categories-mobile {
-    position: fixed;
-    top: 56px;
+    position: sticky;
+    top: 0;
     z-index: 10;
     background: var(--light-bg);
     display: none;
